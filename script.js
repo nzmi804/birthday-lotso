@@ -266,7 +266,7 @@ function typeMessage() {
     if (typingIndex < fullMessage.length) {
       letterEl.innerHTML = fullMessage.substring(0, typingIndex + 1).replace(/\n/g, '<br>') + '<span class="typing-cursor"></span>';
       typingIndex++;
-      typingTimeout = setTimeout(typeChar, 22);
+      typingTimeout = setTimeout(typeChar, 70);
     } else {
       letterEl.innerHTML = fullMessage.replace(/\n/g, '<br>');
       launchConfetti();
