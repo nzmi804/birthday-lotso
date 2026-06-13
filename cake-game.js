@@ -481,7 +481,13 @@ function drawDiningHint() {
   ctx.fillStyle = 'var(--dark)';
   ctx.font = `bold ${15*dpr}px Quicksand, Poppins, sans-serif`;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText('Cari saya atas meja! 🎂', tx, ty);
+  ctx.fillText('Sila sentuh meja 🎂', tx, ty);
+
+  // Floating cake icon above the hint bubble
+  ctx.font = `${28*dpr}px serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const bounce = Math.sin(gameTime * 3) * 3 * dpr;
+  ctx.fillText('🎂', tx, ty - 38*dpr + bounce);
   ctx.restore();
 }
 
@@ -519,12 +525,16 @@ function drawNPCs() {
   const cx = lotso.x + lotso.width*dpr/2;
   const cy = lotso.y + lotso.height*dpr/2;
 
-  // Locked dining door message
+  // Locked dining door message appears above the player's Lotso head
   if (diningDoor && !isDiningUnlocked()) {
     const dx = diningDoor.x + diningDoor.w/2;
     const dy = diningDoor.y + diningDoor.h/2;
     if (Math.hypot(cx - dx, cy - dy) < 90*dpr) {
-      drawSpeechBubbleAt(dx, dy - 40*dpr, `Pintu dikunci! Cari ${npcs.length - metFamily.size} orang lagi. 🔒`, '#5e2a35');
+      const remaining = npcs.length - metFamily.size;
+      const msg = remaining > 0
+        ? `Pintu dikunci! Bercakap dengan ${remaining} orang lagi. 🔒`
+        : `Pintu dikunci! Bercakap dengan semua ahli keluarga. 🔒`;
+      drawSpeechBubbleAt(cx, cy - lotso.height*dpr - 30*dpr, msg, '#5e2a35');
     }
   }
 
@@ -869,7 +879,7 @@ function restartCakeGame() {
   moveDir = {x:0,y:0}; confetti = []; sparkles = [];
   if (dpad) dpad.classList.remove('hidden');
   if (birthdayConsole) { birthdayConsole.classList.remove('active'); birthdayConsole.setAttribute('aria-hidden','true'); }
-  if (cakeHint) cakeHint.textContent = 'Cari Ayah, Kakak, Adik Lelaki & Adik Perempuan dulu.';
+  if (cakeHint) cakeHint.textContent = 'Sila cari dan bercakap dengan Ayah, Kakak, Adik Lelaki & Adik Perempuan untuk unlock pintu.';
   buildWorld();
 }
 
