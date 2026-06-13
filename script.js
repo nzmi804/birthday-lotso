@@ -274,6 +274,8 @@ function typeMessage() {
     } else {
       letterEl.innerHTML = fullMessage.replace(/\n/g, '<br>');
       launchConfetti();
+      const nextBtn = document.getElementById('msgNextBtn');
+      if (nextBtn) nextBtn.classList.remove('hidden');
     }
   }
 

@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=44">
+  <link rel="stylesheet" href="style.css?v=45">
 </head>
 <body class="notranslate">
 
@@ -36,8 +36,8 @@
 
       <div class="letter" id="letter" aria-live="polite"></div>
 
-      <a href="cake.html" class="btn btn-primary">Sambung Kejutan 🎂</a>
-      <button class="btn btn-secondary" onclick="restart()">Main Lagi 🔄</button>
+      <a href="cake.html" class="btn btn-primary hidden" id="msgNextBtn">Sambung Kejutan 🎂</a>
+      <button class="btn btn-secondary hidden" id="msgRestartBtn" onclick="restart()">Main Lagi 🔄</button>
     </div>
   </section>
 
@@ -52,7 +52,7 @@
     🎵 One Love Emotional Piano Strings
   </div>
 
-  <script src="script.js?v=44"></script>
+  <script src="script.js?v=45"></script>
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(typeMessage, 500);
