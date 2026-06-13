@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=18">
-  <link rel="stylesheet" href="cake-game.css?v=18">
+  <link rel="stylesheet" href="style.css?v=19">
+  <link rel="stylesheet" href="cake-game.css?v=19">
 </head>
 <body class="notranslate">
 
@@ -33,50 +33,7 @@
       <p class="section-subtitle">Gerakkan Lotso pergi dekat tempat yang nampak suram tu…</p>
 
       <div class="room" id="room">
-        <!-- Beach scene -->
-        <div class="room-wall"></div>
-        <div class="sun">☀️</div>
-        <div class="ocean">
-          <div class="wave wave1"></div>
-          <div class="wave wave2"></div>
-          <div class="wave wave3"></div>
-        </div>
-        <div class="room-floor"></div>
-
-        <!-- Beach items -->
-        <div class="furniture palm">🌴</div>
-        <div class="furniture umbrella">⛱️</div>
-        <div class="furniture ball">🏖️</div>
-        <div class="furniture shell">🐚</div>
-        <div class="furniture starfish">🌟</div>
-
-        <!-- Hidden cake -->
-        <div class="cake-spot" id="cakeSpot">
-          <div class="cake">🎂</div>
-          <div class="cake-glow"></div>
-        </div>
-
-        <!-- Lotso with direction arrow -->
-        <div class="lotso lotso-room" id="lotsoRoom" aria-hidden="true">
-          <div class="lotso-arrow" id="lotsoArrow">➤</div>
-          <img src="assets/lotso.svg" alt="Lotso strawberry bear" draggable="false">
-        </div>
-
-        <!-- Darkness overlay (flashlight effect) -->
-        <div class="room-overlay" id="roomOverlay"></div>
-
-        <!-- Friends pop in after cake found -->
-        <div class="friends" id="friends" aria-hidden="true"></div>
-
-        <!-- Birthday party decorations (show on found) -->
-        <div class="party-decor" id="partyDecor" aria-hidden="true">
-          <div class="party-banner">🎉 Happy Birthday 🎉</div>
-          <div class="party-balloon balloon-left">🎈</div>
-          <div class="party-balloon balloon-right">🎈</div>
-          <div class="party-streamer streamer-left"></div>
-          <div class="party-streamer streamer-right"></div>
-          <div class="party-sparkles" id="partySparkles"></div>
-        </div>
+        <canvas class="game-canvas" id="gameCanvas" aria-label="Lotso beach birthday adventure"></canvas>
       </div>
 
       <!-- D-pad -->
@@ -121,7 +78,7 @@
     🎵 There Is Romance by Kevin MacLeod
   </div>
 
-  <script src="script.js?v=18"></script>
-  <script src="cake-game.js?v=18"></script>
+  <script src="script.js?v=19"></script>
+  <script src="cake-game.js?v=19"></script>
 </body>
 </html>
