@@ -106,9 +106,6 @@ function buildWorld() {
     const rx = def.side === 'left' ? 0 : ROOM_W + CORRIDOR_W;
     const ry = GAP + def.row * (ROOM_H + GAP);
 
-    // Room background
-    ctx && ctx.fill(def.bg); // not needed here
-
     // Outer walls (top/bottom/outer side)
     walls.push({ x: rx, y: ry, w: ROOM_W, h: WALL_THICK }); // top
     walls.push({ x: rx, y: ry + ROOM_H - WALL_THICK, w: ROOM_W, h: WALL_THICK }); // bottom
