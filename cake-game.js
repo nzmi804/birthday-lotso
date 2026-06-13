@@ -173,10 +173,10 @@ function buildWorld() {
     // Dining table + chairs
     if (def.key === 'diningRoom') {
       diningRoomRect = { x: rx, y: ry, w: ROOM_W, h: ROOM_H };
-      diningTable = { x: rx + 75*dpr, y: ry + 200*dpr, w: 150*dpr, h: 90*dpr };
+      diningTable = { x: rx + 90*dpr, y: ry + 270*dpr, w: 120*dpr, h: 70*dpr };
       furniture.push({ type: 'table', ...diningTable, color: '#d7ccc8' });
-      furniture.push({ type: 'chair', x: diningTable.x - 35*dpr, y: diningTable.y + 20*dpr, w: 30*dpr, h: 35*dpr, color: '#8d6e63' });
-      furniture.push({ type: 'chair', x: diningTable.x + diningTable.w + 5*dpr, y: diningTable.y + 20*dpr, w: 30*dpr, h: 35*dpr, color: '#8d6e63' });
+      furniture.push({ type: 'chair', x: diningTable.x - 28*dpr, y: diningTable.y + 18*dpr, w: 24*dpr, h: 28*dpr, color: '#8d6e63' });
+      furniture.push({ type: 'chair', x: diningTable.x + diningTable.w + 4*dpr, y: diningTable.y + 18*dpr, w: 24*dpr, h: 28*dpr, color: '#8d6e63' });
     }
 
     if (def.locked) diningDoor = doorInfo;
@@ -869,7 +869,7 @@ function restartCakeGame() {
   moveDir = {x:0,y:0}; confetti = []; sparkles = [];
   if (dpad) dpad.classList.remove('hidden');
   if (birthdayConsole) { birthdayConsole.classList.remove('active'); birthdayConsole.setAttribute('aria-hidden','true'); }
-  if (cakeHint) cakeHint.textContent = 'Cari Abi, Kakak, Abang & Adik dulu.';
+  if (cakeHint) cakeHint.textContent = 'Cari Ayah, Kakak, Adik Lelaki & Adik Perempuan dulu.';
   buildWorld();
 }
 
