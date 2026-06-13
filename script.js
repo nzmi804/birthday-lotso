@@ -98,6 +98,7 @@ function initVideoPlaceholder() {
 /* ---------- Pause music while watching the special video ---------- */
 function initVideoMusic() {
   const video = document.getElementById('birthdayVideo');
+  const nextBtn = document.getElementById('videoNextBtn');
   if (!video || !music) return;
   let pausedByVideo = false;
 
@@ -117,7 +118,10 @@ function initVideoMusic() {
   };
 
   video.addEventListener('pause', maybeResume);
-  video.addEventListener('ended', maybeResume);
+  video.addEventListener('ended', () => {
+    maybeResume();
+    if (nextBtn) nextBtn.classList.remove('hidden');
+  });
 }
 
 /* ---------- Background particles ---------- */
