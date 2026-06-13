@@ -494,31 +494,42 @@ function drawDiningHint() {
 function drawDiningCake() {
   if (!cakeRevealed || !diningTable) return;
   const cx = diningTable.x + diningTable.w/2;
-  const cy = diningTable.y - 26*dpr;
-  const w = 56*dpr, h = 50*dpr;
+  const cy = diningTable.y + diningTable.h/2; // centered on the table
+  const w = 64*dpr, h = 58*dpr;
+
+  // Glow
   const g = ctx.createRadialGradient(cx, cy, w*0.3, cx, cy, w*1.5);
   g.addColorStop(0, 'rgba(255,215,0,0.5)'); g.addColorStop(1, 'rgba(255,215,0,0)');
   ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, w*1.5, 0, Math.PI*2); ctx.fill();
 
+  // Plate
   ctx.fillStyle = 'rgba(255,255,255,0.9)';
-  ctx.beginPath(); ctx.ellipse(cx, cy + h*0.45, w*0.7, 7*dpr, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx, cy + h*0.48, w*0.8, 8*dpr, 0, 0, Math.PI*2); ctx.fill();
 
-  ctx.fillStyle = '#8d5524'; roundRect(cx - w*0.5, cy, w, h*0.55, 6*dpr); ctx.fill();
-  ctx.fillStyle = '#ff99aa'; roundRect(cx - w*0.45, cy - h*0.05, w*0.9, h*0.2, 5*dpr); ctx.fill();
+  // Bottom tier
+  ctx.fillStyle = '#8d5524'; roundRect(cx - w*0.5, cy + h*0.05, w, h*0.5, 6*dpr); ctx.fill();
+  // Frosting layer
+  ctx.fillStyle = '#ff99aa'; roundRect(cx - w*0.45, cy - h*0.05, w*0.9, h*0.15, 5*dpr); ctx.fill();
+  // Top tier
   ctx.fillStyle = '#a66a36'; roundRect(cx - w*0.35, cy - h*0.45, w*0.7, h*0.45, 5*dpr); ctx.fill();
 
-  const cw_ = 4*dpr, ch_ = 12*dpr;
-  [-w*0.15, w*0.15].forEach(off => {
+  // Three candles centered on the cake
+  const candleCount = 3;
+  const spacing = w * 0.18;
+  const startX = cx - ((candleCount - 1) / 2) * spacing;
+  const candleBaseY = cy - h * 0.45;
+  for (let i = 0; i < candleCount; i++) {
+    const cx_ = startX + i * spacing;
     ctx.fillStyle = '#fff';
-    ctx.fillRect(cx + off - cw_/2, cy - h*0.45 - ch_, cw_, ch_);
-    const flicker = Math.sin(gameTime*12 + off)*1.5*dpr;
+    ctx.fillRect(cx_ - 2*dpr, candleBaseY - 12*dpr, 4*dpr, 12*dpr);
+    const flicker = Math.sin(gameTime * 12 + i) * 1.5 * dpr;
     ctx.fillStyle = 'rgba(255,200,50,0.9)';
     ctx.beginPath();
-    ctx.moveTo(cx + off, cy - h*0.45 - ch_ + flicker);
-    ctx.quadraticCurveTo(cx + off - 4*dpr, cy - h*0.45 - ch_ - 7*dpr, cx + off, cy - h*0.45 - ch_ - 13*dpr + flicker);
-    ctx.quadraticCurveTo(cx + off + 4*dpr, cy - h*0.45 - ch_ - 7*dpr, cx + off, cy - h*0.45 - ch_ + flicker);
+    ctx.moveTo(cx_, candleBaseY - 12*dpr + flicker);
+    ctx.quadraticCurveTo(cx_ - 4*dpr, candleBaseY - 12*dpr - 7*dpr, cx_, candleBaseY - 12*dpr - 13*dpr + flicker);
+    ctx.quadraticCurveTo(cx_ + 4*dpr, candleBaseY - 12*dpr - 7*dpr, cx_, candleBaseY - 12*dpr + flicker);
     ctx.fill();
-  });
+  }
 }
 
 function drawNPCs() {
