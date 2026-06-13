@@ -37,6 +37,7 @@ const furniture = [];
 const npcs = [];
 let diningDoor = null;
 let diningTable = null;
+let diningRoomRect = null;
 let cakeRevealed = false;
 let confetti = [], sparkles = [];
 let shake = 0;
@@ -122,9 +123,9 @@ function buildWorld() {
     { key: 'diningRoom', side: 'right', row: 1, bg: '#fff8fa', locked: true,
       npc: null,
       furniture: [
-        { type: 'bed-small', x: 150*dpr, y: 140*dpr, w: 140*dpr, h: 170*dpr, color: '#e1bee7' },
         { type: 'wardrobe', x: 180*dpr, y: 40*dpr, w: 100*dpr, h: 75*dpr, color: '#a1887f' },
-        { type: 'cabinet', x: 180*dpr, y: 330*dpr, w: 100*dpr, h: 60*dpr, color: '#bcaaa4' }
+        { type: 'cabinet', x: 180*dpr, y: 330*dpr, w: 100*dpr, h: 60*dpr, color: '#bcaaa4' },
+        { type: 'plant', x: 35*dpr, y: 40*dpr, w: 45*dpr, h: 45*dpr, color: '#81c784' }
       ] },
     { key: 'commonBathroom', side: 'right', row: 2, bg: '#e1f5fe', locked: false,
       npc: null,
@@ -170,6 +171,7 @@ function buildWorld() {
 
     // Dining table + chairs
     if (def.key === 'diningRoom') {
+      diningRoomRect = { x: rx, y: ry, w: ROOM_W, h: ROOM_H };
       diningTable = { x: rx + 75*dpr, y: ry + 200*dpr, w: 150*dpr, h: 90*dpr };
       furniture.push({ type: 'table', ...diningTable, color: '#d7ccc8' });
       furniture.push({ type: 'chair', x: diningTable.x - 35*dpr, y: diningTable.y + 20*dpr, w: 30*dpr, h: 35*dpr, color: '#8d6e63' });
@@ -312,6 +314,7 @@ function draw() {
   drawDoors();
   drawFurniture();
   drawNPCs();
+  drawDiningHint();
   drawDiningCake();
   if (celebrating) drawSingingText();
   drawLotso();
@@ -442,6 +445,43 @@ function drawFurniture() {
       ctx.fillRect(f.x + f.w*0.45, f.y + 8*dpr, 4*dpr, f.h - 16*dpr);
     }
   }
+}
+
+function drawDiningHint() {
+  if (!diningRoomRect || !diningTable || cakeFound || cakeRevealed) return;
+  const lotsoCX = lotso.x + lotso.width*dpr/2;
+  const lotsoCY = lotso.y + lotso.height*dpr/2;
+  if (
+    lotsoCX < diningRoomRect.x ||
+    lotsoCX > diningRoomRect.x + diningRoomRect.w ||
+    lotsoCY < diningRoomRect.y ||
+    lotsoCY > diningRoomRect.y + diningRoomRect.h
+  ) return;
+
+  const tx = diningTable.x + diningTable.w/2;
+  const ty = diningTable.y - 44*dpr;
+  const bw = 235*dpr, bh = 42*dpr;
+  const bx = tx - bw/2, by = ty - bh/2;
+
+  ctx.save();
+  ctx.fillStyle = '#fff';
+  ctx.strokeStyle = 'rgba(91,36,54,0.18)';
+  ctx.lineWidth = 2*dpr;
+  roundRect(bx, by, bw, bh, 12*dpr);
+  ctx.fill(); ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(tx - 8*dpr, by + bh - 1*dpr);
+  ctx.lineTo(tx + 8*dpr, by + bh - 1*dpr);
+  ctx.lineTo(tx, by + bh + 8*dpr);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+
+  ctx.fillStyle = 'var(--dark)';
+  ctx.font = `bold ${15*dpr}px Quicksand, Poppins, sans-serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('Cari saya atas meja! 🎂', tx, ty);
+  ctx.restore();
 }
 
 function drawDiningCake() {
