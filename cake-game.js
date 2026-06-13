@@ -1,5 +1,5 @@
 /* ==========================
-   Lotso House Birthday Adventure
+   Lotso Family Birthday Adventure
    ========================== */
 
 const room = document.getElementById('room');
@@ -8,9 +8,6 @@ const cakeHint = document.getElementById('cakeHint');
 const dpad = document.getElementById('dpad');
 const birthdayConsole = document.getElementById('birthdayConsole');
 const birthdaySong = document.getElementById('birthdaySong');
-const dialogueBox = document.getElementById('dialogueBox');
-const dialogueName = document.getElementById('dialogueName');
-const dialogueText = document.getElementById('dialogueText');
 
 let ctx = null;
 let dpr = 1;
@@ -25,7 +22,7 @@ const lotsoImg = new Image();
 lotsoImg.src = 'assets/lotso.svg';
 const imagesReady = Promise.all([new Promise(r => { lotsoImg.onload = r; lotsoImg.onerror = r; })]);
 
-// World dimensions
+// World
 let ROOM_W = 0, ROOM_H = 0, CORRIDOR_W = 0;
 let WORLD_W = 0, WORLD_H = 0, GAP = 0, WALL_THICK = 0;
 
@@ -37,12 +34,18 @@ const walls = [];
 const doors = [];
 const furniture = [];
 const npcs = [];
+let diningDoor = null;
 let diningTable = null;
 let cakeRevealed = false;
 let confetti = [], sparkles = [];
 let shake = 0;
 let celebrating = false;
-let celebrationTargets = [];
+let metFamily = new Set();
+
+// YouTube
+let youtubePlayer = null;
+let youtubeReady = false;
+const BIRTHDAY_VIDEO_ID = '90w2RegGf9w';
 
 function resizeCanvas() {
   if (!room || !canvas) return;
@@ -67,41 +70,43 @@ function buildWorld() {
   WORLD_H = 3 * ROOM_H + 4 * GAP;
 
   walls.length = 0; doors.length = 0; furniture.length = 0; npcs.length = 0;
+  metFamily.clear();
+  celebrating = false;
+  cakeFound = false;
+  cakeRevealed = false;
 
   const roomDefs = [
-    // Left column
-    { key: 'bedroom', side: 'left', row: 0, name: 'Bilik Tidur', bg: '#fff0f3',
-      npc: { name: 'Papa', color: '#4fc3f7', hair: '#3e2723', gender: 'man', dialogue: 'Shhh… jangan bising. Nanti malam ada movie night special. 🎬' },
+    { key: 'bedroom', side: 'left', row: 0, bg: '#fff0f3', locked: false,
+      npc: { name: 'Papa', color: '#4fc3f7', hair: '#3e2723', gender: 'man', dialogue: 'Sayang, nanti malam kita ada plan special. Jangan tanya apa-apa dulu! 😉' },
       furniture: [
         { type: 'bed', x: 20*dpr, y: 55*dpr, w: 130*dpr, h: 160*dpr, color: '#ffb3c1' },
         { type: 'wardrobe', x: 20*dpr, y: 250*dpr, w: 70*dpr, h: 110*dpr, color: '#a1887f' }
       ] },
-    { key: 'study', side: 'left', row: 1, name: 'Bilik Study', bg: '#f3e5f5',
-      npc: { name: 'Abang', color: '#81d4fa', hair: '#3e2723', gender: 'boy', dialogue: 'Lotso, jangan kasi tahu sesiapa ye. Ada surprise malam ni! 🤫' },
+    { key: 'study', side: 'left', row: 1, bg: '#f3e5f5', locked: false,
+      npc: { name: 'Abang', color: '#81d4fa', hair: '#3e2723', gender: 'boy', dialogue: 'Shhh… jangan bising. Nanti Mama tahu surprise kita! 🤫' },
       furniture: [
         { type: 'bookshelf', x: 20*dpr, y: 40*dpr, w: 65*dpr, h: 170*dpr, color: '#8d6e63' },
         { type: 'desk', x: 20*dpr, y: 250*dpr, w: 120*dpr, h: 55*dpr, color: '#bcaaa4' }
       ] },
-    { key: 'living', side: 'left', row: 2, name: 'Bilik Tamu', bg: '#e8f5e9',
-      npc: { name: 'Kakak', color: '#ff99aa', hair: '#5e2a35', gender: 'girl', dialogue: 'Hari ni sayang pakai baju comel. Mesti ada sesuatu istimewa. 👗' },
+    { key: 'living', side: 'left', row: 2, bg: '#e8f5e9', locked: false,
+      npc: { name: 'Kakak', color: '#ff99aa', hair: '#5e2a35', gender: 'girl', dialogue: 'Hari ni Mama pakai baju comel. Mesti ada sesuatu istimewa. 👗' },
       furniture: [
         { type: 'sofa', x: 20*dpr, y: 60*dpr, w: 140*dpr, h: 70*dpr, color: '#ff8fab' },
         { type: 'tv', x: 30*dpr, y: 230*dpr, w: 110*dpr, h: 70*dpr, color: '#5e2a35' }
       ] },
-    // Right column
-    { key: 'bathroom', side: 'right', row: 0, name: 'Bilik Mandi', bg: '#e1f5fe',
-      npc: { name: 'Mama', color: '#fb6f92', hair: '#5e2a35', gender: 'woman', dialogue: 'Saya tengah siapkan iron baju. Malam ni kita keluar makan sedap. ✨' },
+    { key: 'bathroom', side: 'right', row: 0, bg: '#e1f5fe', locked: false,
+      npc: { name: 'Adik', color: '#ce93d8', hair: '#5e2a35', gender: 'girl', dialogue: 'Mama nampak comel hari ni. Kita semua sayang Mama! 💕' },
       furniture: [
         { type: 'bathtub', x: ROOM_W - 160*dpr, y: 50*dpr, w: 120*dpr, h: 150*dpr, color: '#b3e5fc' },
         { type: 'sink', x: ROOM_W - 90*dpr, y: 250*dpr, w: 60*dpr, h: 50*dpr, color: '#fff' }
       ] },
-    { key: 'guest', side: 'right', row: 1, name: 'Bilik Tetamu', bg: '#fff3e0',
-      npc: { name: 'Adik', color: '#ce93d8', hair: '#5e2a35', gender: 'girl', dialogue: 'Lotso, ikut je Mama nanti. Jangan lari-lari dalam rumah ye. 🎀' },
+    { key: 'guest', side: 'right', row: 1, bg: '#fff3e0', locked: false,
+      npc: null,
       furniture: [
         { type: 'bed-small', x: ROOM_W - 155*dpr, y: 55*dpr, w: 120*dpr, h: 140*dpr, color: '#e1bee7' },
         { type: 'toybox', x: ROOM_W - 95*dpr, y: 240*dpr, w: 70*dpr, h: 55*dpr, color: '#ffab91' }
       ] },
-    { key: 'dining', side: 'right', row: 2, name: 'Bilik Makan', bg: '#fff8fa',
+    { key: 'dining', side: 'right', row: 2, bg: '#fff8fa', locked: true,
       npc: null,
       furniture: [
         { type: 'fridge', x: ROOM_W - 80*dpr, y: 40*dpr, w: 55*dpr, h: 110*dpr, color: '#e3f2fd' },
@@ -109,28 +114,22 @@ function buildWorld() {
       ] }
   ];
 
-  // Build rooms
   roomDefs.forEach(def => {
     const rx = def.side === 'left' ? 0 : ROOM_W + CORRIDOR_W;
     const ry = GAP + def.row * (ROOM_H + GAP);
 
-    // Outer walls (top/bottom/outer side)
-    walls.push({ x: rx, y: ry, w: ROOM_W, h: WALL_THICK }); // top
-    walls.push({ x: rx, y: ry + ROOM_H - WALL_THICK, w: ROOM_W, h: WALL_THICK }); // bottom
-    if (def.side === 'left') {
-      walls.push({ x: rx, y: ry, w: WALL_THICK, h: ROOM_H }); // outer left
-    } else {
-      walls.push({ x: rx + ROOM_W - WALL_THICK, y: ry, w: WALL_THICK, h: ROOM_H }); // outer right
-    }
+    // Outer walls
+    walls.push({ x: rx, y: ry, w: ROOM_W, h: WALL_THICK });
+    walls.push({ x: rx, y: ry + ROOM_H - WALL_THICK, w: ROOM_W, h: WALL_THICK });
+    if (def.side === 'left') walls.push({ x: rx, y: ry, w: WALL_THICK, h: ROOM_H });
+    else walls.push({ x: rx + ROOM_W - WALL_THICK, y: ry, w: WALL_THICK, h: ROOM_H });
 
-    // Inner wall facing corridor with door
+    // Door wall
     const wallX = def.side === 'left' ? rx + ROOM_W - WALL_THICK : rx;
-    addWallWithDoor(wallX, ry, WALL_THICK, ROOM_H, def.side);
+    const doorInfo = addWallWithDoor(wallX, ry, WALL_THICK, ROOM_H, def.side, def.locked);
 
-    // Furniture (convert local room coords to world)
-    def.furniture.forEach(f => {
-      furniture.push({ ...f, x: f.x + rx, y: f.y + ry });
-    });
+    // Furniture
+    def.furniture.forEach(f => furniture.push({ ...f, x: f.x + rx, y: f.y + ry }));
 
     // NPC
     if (def.npc) {
@@ -139,37 +138,46 @@ function buildWorld() {
       npcs.push({ ...def.npc, x: npcX, y: npcY });
     }
 
-    // Dining table with hidden cake
+    // Dining table
     if (def.key === 'dining') {
-      diningTable = {
-        x: rx + 40 * dpr,
-        y: ry + ROOM_H - 150 * dpr,
-        w: 150 * dpr,
-        h: 90 * dpr
-      };
+      diningTable = { x: rx + 40*dpr, y: ry + ROOM_H - 150*dpr, w: 150*dpr, h: 90*dpr };
       furniture.push({ type: 'table', ...diningTable, color: '#d7ccc8' });
       furniture.push({ type: 'chair', x: diningTable.x - 35*dpr, y: diningTable.y + 20*dpr, w: 30*dpr, h: 35*dpr, color: '#8d6e63' });
       furniture.push({ type: 'chair', x: diningTable.x + diningTable.w + 5*dpr, y: diningTable.y + 20*dpr, w: 30*dpr, h: 35*dpr, color: '#8d6e63' });
     }
+
+    if (def.locked) diningDoor = doorInfo;
   });
 
-  // Corridor top/bottom walls
+  // Corridor caps
   const cx = ROOM_W;
-  walls.push({ x: cx, y: 0, w: CORRIDOR_W, h: GAP }); // top cap
-  walls.push({ x: cx, y: WORLD_H - GAP, w: CORRIDOR_W, h: GAP }); // bottom cap
+  walls.push({ x: cx, y: 0, w: CORRIDOR_W, h: GAP });
+  walls.push({ x: cx, y: WORLD_H - GAP, w: CORRIDOR_W, h: GAP });
 
-  // Lotso starts in corridor at top (lobby)
-  lotso.x = cx + CORRIDOR_W / 2 - lotso.width * dpr / 2;
-  lotso.y = GAP + 30 * dpr;
+  // Start in corridor top
+  lotso.x = cx + CORRIDOR_W/2 - lotso.width*dpr/2;
+  lotso.y = GAP + 30*dpr;
   lotso.facing = 1;
 }
 
-function addWallWithDoor(x, y, w, h, side) {
+function addWallWithDoor(x, y, w, h, side, locked) {
   const doorTop = y + h * 0.35;
   const doorBottom = y + h * 0.65;
-  walls.push({ x, y, w, h: doorTop - y });
-  walls.push({ x, y: doorBottom, w, h: y + h - doorBottom });
-  doors.push({ x, y: doorTop, w, h: doorBottom - doorTop, side });
+  const info = { x, y: doorTop, w, h: doorBottom - doorTop, side, locked };
+  if (locked) {
+    // Solid wall for locked room; door info saved for drawing/interaction
+    const wall = { x, y, w, h, lockedDoor: true };
+    walls.push(wall);
+  } else {
+    walls.push({ x, y, w, h: doorTop - y });
+    walls.push({ x, y: doorBottom, w, h: y + h - doorBottom });
+  }
+  doors.push(info);
+  return info;
+}
+
+function isDiningUnlocked() {
+  return metFamily.size >= npcs.length;
 }
 
 // ---------- Game loop ----------
@@ -202,34 +210,21 @@ function update() {
   camera.x = Math.max(0, Math.min(camera.x, WORLD_W - cw));
   camera.y = Math.max(0, Math.min(camera.y, WORLD_H - ch));
 
-  updateDialogue();
+  // Mark family as met
+  const cx = lotso.x + lotso.width*dpr/2;
+  const cy = lotso.y + lotso.height*dpr/2;
+  npcs.forEach(npc => {
+    if (Math.hypot(cx - npc.x, cy - npc.y) < 80*dpr) metFamily.add(npc.name);
+  });
 
-  for (let i = confetti.length - 1; i >= 0; i--) {
-    const c = confetti[i]; c.x += c.vx; c.y += c.vy; c.rot += c.vr; c.vy += 0.05*dpr;
-    if (c.y > camera.y + ch + 30) confetti.splice(i, 1);
-  }
-  for (let i = sparkles.length - 1; i >= 0; i--) {
-    const s = sparkles[i]; s.life -= 0.015; s.y -= 0.4*dpr;
-    if (s.life <= 0) sparkles.splice(i, 1);
-  }
   if (shake > 0) shake *= 0.92; if (shake < 0.3) shake = 0;
   if (!cakeFound && !cakeRevealed) checkCakeFound();
-
-  // Move family into celebration circle after cake found
-  if (celebrating) {
-    npcs.forEach((npc, i) => {
-      const t = celebrationTargets[i];
-      if (t) {
-        npc.x += (t.x - npc.x) * 0.08;
-        npc.y += (t.y - npc.y) * 0.08;
-      }
-    });
-  }
 }
 
 function resolveCollision(axis) {
   const r = { x: lotso.x, y: lotso.y, w: lotso.width*dpr, h: lotso.height*dpr };
   for (const w of walls) {
+    if (w.lockedDoor && isDiningUnlocked()) continue; // dining door opens
     if (rectIntersect(r, w)) {
       if (axis === 'x') lotso.x = lotso.x < w.x ? w.x - r.w : w.x + w.w;
       else lotso.y = lotso.y < w.y ? w.y - r.h : w.y + w.h;
@@ -243,24 +238,6 @@ function resolveCollision(axis) {
   }
 }
 function rectIntersect(a, b) { return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y; }
-
-function updateDialogue() {
-  const cx = lotso.x + lotso.width*dpr/2;
-  const cy = lotso.y + lotso.height*dpr/2;
-  let active = null;
-  for (const npc of npcs) {
-    if (Math.hypot(cx - npc.x, cy - npc.y) < 75*dpr) { active = npc; break; }
-  }
-  if (active) {
-    dialogueName.textContent = active.name;
-    dialogueText.textContent = active.dialogue;
-    dialogueBox.classList.add('active');
-    dialogueBox.setAttribute('aria-hidden', 'false');
-  } else {
-    dialogueBox.classList.remove('active');
-    dialogueBox.setAttribute('aria-hidden', 'true');
-  }
-}
 
 function checkCakeFound() {
   if (!diningTable) return;
@@ -276,7 +253,7 @@ function draw() {
   if (!ctx) return;
   ctx.save();
   if (shake > 0) ctx.translate((Math.random()-0.5)*shake, (Math.random()-0.5)*shake);
-  ctx.fillStyle = '#3e2723'; ctx.fillRect(0,0,cw,ch);
+  ctx.fillStyle = '#3e2723'; ctx.fillRect(0, 0, cw, ch);
   ctx.translate(-camera.x, -camera.y);
 
   drawRooms();
@@ -303,20 +280,16 @@ function drawRooms() {
     const rx = d.side === 'left' ? 0 : ROOM_W + CORRIDOR_W;
     const ry = GAP + d.row * (ROOM_H + GAP);
     const grd = ctx.createLinearGradient(rx, ry, rx, ry + ROOM_H);
-    grd.addColorStop(0, d.bg);
-    grd.addColorStop(1, '#ffe6ec');
+    grd.addColorStop(0, d.bg); grd.addColorStop(1, '#ffe6ec');
     ctx.fillStyle = grd;
     ctx.fillRect(rx + WALL_THICK, ry + WALL_THICK, ROOM_W - WALL_THICK*2, ROOM_H - WALL_THICK*2);
 
-    // Floor planks
-    ctx.strokeStyle = 'rgba(141,110,99,0.07)';
-    ctx.lineWidth = 2*dpr;
+    ctx.strokeStyle = 'rgba(141,110,99,0.07)'; ctx.lineWidth = 2*dpr;
     for (let i = 0; i < ROOM_H; i += 38*dpr) {
       ctx.beginPath(); ctx.moveTo(rx + WALL_THICK, ry + i); ctx.lineTo(rx + ROOM_W - WALL_THICK, ry + i); ctx.stroke();
     }
   });
 
-  // Walls
   ctx.fillStyle = '#6d4c41';
   for (const w of walls) ctx.fillRect(w.x, w.y, w.w, w.h);
   ctx.fillStyle = 'rgba(0,0,0,0.12)';
@@ -329,35 +302,41 @@ function drawRooms() {
 function drawCorridor() {
   const cx = ROOM_W;
   const grd = ctx.createLinearGradient(cx, 0, cx + CORRIDOR_W, 0);
-  grd.addColorStop(0, '#ffe6ec');
-  grd.addColorStop(0.5, '#fff');
-  grd.addColorStop(1, '#ffe6ec');
+  grd.addColorStop(0, '#ffe6ec'); grd.addColorStop(0.5, '#fff'); grd.addColorStop(1, '#ffe6ec');
   ctx.fillStyle = grd;
   ctx.fillRect(cx + WALL_THICK, GAP, CORRIDOR_W - WALL_THICK*2, WORLD_H - 2*GAP);
-
-  // Runner carpet
   ctx.fillStyle = 'rgba(255, 179, 193, 0.25)';
   ctx.fillRect(cx + 25*dpr, GAP, CORRIDOR_W - 50*dpr, WORLD_H - 2*GAP);
-
-  // Wall trim
   ctx.fillStyle = '#8d6e63';
   ctx.fillRect(cx + WALL_THICK, GAP, 4*dpr, WORLD_H - 2*GAP);
   ctx.fillRect(cx + CORRIDOR_W - WALL_THICK - 4*dpr, GAP, 4*dpr, WORLD_H - 2*GAP);
 }
 
 function drawDoors() {
-  ctx.fillStyle = '#8d6e63';
-  for (const d of doors) {
-    // Frame
+  const unlocked = isDiningUnlocked();
+  doors.forEach(d => {
+    const locked = d.locked && !unlocked;
+    ctx.fillStyle = locked ? '#5d4037' : '#8d6e63';
     ctx.fillRect(d.x - 2*dpr, d.y - 6*dpr, d.w + 4*dpr, 6*dpr);
     ctx.fillRect(d.x - 2*dpr, d.y + d.h, d.w + 4*dpr, 6*dpr);
     ctx.fillRect(d.x - 4*dpr, d.y, 4*dpr, d.h);
     ctx.fillRect(d.x + d.w, d.y, 4*dpr, d.h);
-    // Open dark
-    ctx.fillStyle = 'rgba(40,25,20,0.35)';
-    ctx.fillRect(d.x, d.y, d.w, d.h);
-    ctx.fillStyle = '#8d6e63';
-  }
+
+    if (locked) {
+      // Locked door panel
+      ctx.fillStyle = '#4e342e';
+      ctx.fillRect(d.x, d.y, d.w, d.h);
+      // Lock icon
+      ctx.fillStyle = '#ffd700';
+      ctx.beginPath(); ctx.arc(d.x + d.w/2, d.y + d.h/2 - 4*dpr, 5*dpr, 0, Math.PI*2); ctx.fill();
+      ctx.fillRect(d.x + d.w/2 - 5*dpr, d.y + d.h/2 - 2*dpr, 10*dpr, 9*dpr);
+      ctx.fillStyle = '#3e2723';
+      ctx.beginPath(); ctx.arc(d.x + d.w/2, d.y + d.h/2 + 1*dpr, 2*dpr, 0, Math.PI*2); ctx.fill();
+    } else {
+      ctx.fillStyle = 'rgba(40,25,20,0.35)';
+      ctx.fillRect(d.x, d.y, d.w, d.h);
+    }
+  });
 }
 
 function drawFurniture() {
@@ -445,70 +424,71 @@ function drawDiningCake() {
 }
 
 function drawNPCs() {
-  for (const npc of npcs) {
-    drawPerson(npc.x, npc.y, npc.color, npc.hair, npc.gender);
-    if (isNearNPC(npc)) drawSpeechBubble(npc);
-  }
-}
-
-function isNearNPC(npc) {
   const cx = lotso.x + lotso.width*dpr/2;
   const cy = lotso.y + lotso.height*dpr/2;
-  return Math.hypot(cx - npc.x, cy - npc.y) < 80*dpr;
+
+  // Locked dining door message
+  if (diningDoor && !isDiningUnlocked()) {
+    const dx = diningDoor.x + diningDoor.w/2;
+    const dy = diningDoor.y + diningDoor.h/2;
+    if (Math.hypot(cx - dx, cy - dy) < 90*dpr) {
+      drawSpeechBubbleAt(dx, dy - 40*dpr, `Pintu dikunci! Cari ${npcs.length - metFamily.size} orang lagi. 🔒`, '#5e2a35');
+    }
+  }
+
+  npcs.forEach(npc => {
+    drawPerson(npc.x, npc.y, npc.color, npc.hair, npc.gender);
+    if (!celebrating && Math.hypot(cx - npc.x, cy - npc.y) < 80*dpr) {
+      drawSpeechBubble(npc);
+    }
+  });
 }
 
 function drawSpeechBubble(npc) {
+  drawSpeechBubbleAt(npc.x, npc.y - 55*dpr, npc.dialogue, '#5e2a35');
+}
+
+function drawSpeechBubbleAt(x, y, text, color) {
   const s = dpr;
-  const text = npc.dialogue;
   ctx.font = `600 ${12*s}px Quicksand, sans-serif`;
-  const maxWidth = 160*s;
+  const maxWidth = 165*s;
   const lines = wrapText(text, maxWidth);
   const lineHeight = 16*s;
-  const padX = 12*s;
-  const padY = 10*s;
-  const bw = Math.min(maxWidth + padX * 2, Math.max(...lines.map(l => ctx.measureText(l).width)) + padX * 2);
-  const bh = lines.length * lineHeight + padY * 2;
-  const bx = npc.x - bw / 2;
-  const by = npc.y - 70*s - bh;
+  const padX = 12*s, padY = 10*s;
+  const bw = Math.min(maxWidth + padX*2, Math.max(...lines.map(l => ctx.measureText(l).width)) + padX*2);
+  const bh = lines.length * lineHeight + padY*2;
+  const bx = x - bw/2;
+  const by = y - bh;
 
-  // Bubble
   ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-  ctx.strokeStyle = 'rgba(255, 77, 109, 0.5)';
+  ctx.strokeStyle = 'rgba(255, 77, 109, 0.45)';
   ctx.lineWidth = 2*s;
   roundRect(bx, by, bw, bh, 10*s);
   ctx.fill(); ctx.stroke();
 
-  // Tail
   ctx.beginPath();
-  ctx.moveTo(npc.x - 8*s, by + bh);
-  ctx.lineTo(npc.x, by + bh + 10*s);
-  ctx.lineTo(npc.x + 8*s, by + bh);
+  ctx.moveTo(x - 8*s, by + bh);
+  ctx.lineTo(x, by + bh + 10*s);
+  ctx.lineTo(x + 8*s, by + bh);
   ctx.closePath();
   ctx.fill(); ctx.stroke();
 
-  // Text
-  ctx.fillStyle = '#5e2a35';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
+  ctx.fillStyle = color;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   lines.forEach((line, i) => {
-    ctx.fillText(line, npc.x, by + padY + lineHeight * i + lineHeight / 2);
+    ctx.fillText(line, x, by + padY + lineHeight*i + lineHeight/2);
   });
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'alphabetic';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
 }
 
 function wrapText(text, maxWidth) {
   const words = text.split(' ');
-  const lines = [];
-  let current = '';
+  const lines = []; let current = '';
   for (const word of words) {
     const test = current ? current + ' ' + word : word;
     if (ctx.measureText(test).width > maxWidth && current) {
-      lines.push(current);
-      current = word;
-    } else {
-      current = test;
-    }
+      lines.push(current); current = word;
+    } else current = test;
   }
   if (current) lines.push(current);
   return lines.length ? lines : [text];
@@ -517,47 +497,33 @@ function wrapText(text, maxWidth) {
 function drawPerson(x, y, bodyColor, hairColor, gender) {
   const s = dpr;
   const isFemale = gender === 'girl' || gender === 'woman';
-  const isChild = gender === 'girl' || gender === 'boy';
 
-  // Shadow
   ctx.fillStyle = 'rgba(0,0,0,0.15)';
   ctx.beginPath(); ctx.ellipse(x, y + 30*s, 15*s, 5*s, 0, 0, Math.PI*2); ctx.fill();
 
-  // Body
   ctx.fillStyle = bodyColor;
   if (isFemale) {
-    // Dress shape
     ctx.beginPath();
-    ctx.moveTo(x - 14*s, y + 8*s);
-    ctx.lineTo(x + 14*s, y + 8*s);
-    ctx.lineTo(x + 18*s, y + 32*s);
-    ctx.lineTo(x - 18*s, y + 32*s);
-    ctx.closePath();
-    ctx.fill();
+    ctx.moveTo(x - 14*s, y + 8*s); ctx.lineTo(x + 14*s, y + 8*s);
+    ctx.lineTo(x + 18*s, y + 32*s); ctx.lineTo(x - 18*s, y + 32*s);
+    ctx.closePath(); ctx.fill();
   } else {
-    // Shirt + pants
-    ctx.beginPath(); ctx.ellipse(x, y + 8*s, 15*s, 18*s, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x, y + 8*s, 15*s, 19*s, 0, 0, Math.PI*2); ctx.fill();
     ctx.fillStyle = '#5e2a35';
     ctx.fillRect(x - 12*s, y + 20*s, 10*s, 14*s);
     ctx.fillRect(x + 2*s, y + 20*s, 10*s, 14*s);
   }
 
-  // Head
   ctx.fillStyle = '#ffe0bd';
   ctx.beginPath(); ctx.arc(x, y - 13*s, 12*s, 0, Math.PI*2); ctx.fill();
 
-  // Hair
   ctx.fillStyle = hairColor;
   if (isFemale) {
-    // Long hair
     ctx.beginPath();
     ctx.arc(x, y - 16*s, 13*s, Math.PI, 0);
-    ctx.lineTo(x + 13*s, y + 5*s);
-    ctx.lineTo(x - 13*s, y + 5*s);
-    ctx.closePath();
-    ctx.fill();
+    ctx.lineTo(x + 13*s, y + 5*s); ctx.lineTo(x - 13*s, y + 5*s);
+    ctx.closePath(); ctx.fill();
     if (gender === 'girl') {
-      // Bow
       ctx.fillStyle = '#ff4d6d';
       ctx.beginPath(); ctx.arc(x - 10*s, y - 22*s, 4*s, 0, Math.PI*2); ctx.fill();
       ctx.beginPath(); ctx.arc(x - 16*s, y - 22*s, 4*s, 0, Math.PI*2); ctx.fill();
@@ -565,11 +531,9 @@ function drawPerson(x, y, bodyColor, hairColor, gender) {
       ctx.beginPath(); ctx.arc(x - 13*s, y - 22*s, 2*s, 0, Math.PI*2); ctx.fill();
     }
   } else {
-    // Short hair
     ctx.beginPath(); ctx.arc(x, y - 16*s, 13*s, Math.PI, 0); ctx.fill();
   }
 
-  // Eyes & smile
   ctx.fillStyle = '#3e2723';
   ctx.beginPath(); ctx.arc(x - 4*s, y - 13*s, 2*s, 0, Math.PI*2); ctx.arc(x + 4*s, y - 13*s, 2*s, 0, Math.PI*2); ctx.fill();
   ctx.strokeStyle = '#3e2723'; ctx.lineWidth = 1.5*s;
@@ -591,23 +555,21 @@ function drawLotso() {
 
 function drawSingingText() {
   if (!diningTable) return;
-  const cx = diningTable.x + diningTable.w / 2;
-  const cy = diningTable.y - 90 * dpr;
+  const cx = diningTable.x + diningTable.w/2;
+  const cy = diningTable.y - 85*dpr;
   ctx.save();
-  ctx.font = `bold ${22 * dpr}px Pacifico, cursive`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
+  ctx.font = `bold ${22*dpr}px Pacifico, cursive`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillStyle = '#ff4d6d';
-  ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
-  ctx.shadowBlur = 12 * dpr;
-  const bounce = Math.sin(gameTime * 4) * 5 * dpr;
+  ctx.shadowColor = 'rgba(255,255,255,0.9)'; ctx.shadowBlur = 12*dpr;
+  const bounce = Math.sin(gameTime*4)*5*dpr;
   ctx.fillText('Happy Birthday to You! 🎶', cx, cy + bounce);
   ctx.restore();
 }
 
 function drawRoomLabels() {
   ctx.font = `bold ${14*dpr}px Quicksand, sans-serif`;
-  ctx.fillStyle = 'rgba(93,64,55,0.25)';
+  ctx.fillStyle = 'rgba(93,64,55,0.22)';
   const labels = [
     { side:'left', row:0, text:'Bilik Tidur' }, { side:'left', row:1, text:'Bilik Study' }, { side:'left', row:2, text:'Bilik Tamu' },
     { side:'right', row:0, text:'Bilik Mandi' }, { side:'right', row:1, text:'Bilik Tetamu' }, { side:'right', row:2, text:'Bilik Makan' }
@@ -615,7 +577,7 @@ function drawRoomLabels() {
   labels.forEach(l => {
     const rx = l.side === 'left' ? 0 : ROOM_W + CORRIDOR_W;
     const ry = GAP + l.row * (ROOM_H + GAP);
-    ctx.fillText(l.text, rx + 16*dpr, ry + 26*dpr);
+    ctx.fillText(l.text, rx + 14*dpr, ry + 24*dpr);
   });
 }
 
@@ -652,71 +614,93 @@ function roundRect(x, y, w, h, r) {
   ctx.closePath();
 }
 
-// ---------- Effects & events ----------
-function spawnConfetti(amount = 120) {
+// ---------- Effects ----------
+function spawnConfetti(amount = 80) {
   const colors = ['#ff4d6d','#ff8fab','#ffb3c1','#fff','#ffccd5','#c77dff','#ffd700'];
   for (let i = 0; i < amount; i++) {
     confetti.push({
       x: lotso.x + (Math.random()-0.5)*cw, y: lotso.y - Math.random()*ch*0.4,
-      vx: (Math.random()-0.5)*4*dpr, vy: (2+Math.random()*4)*dpr,
-      rot: Math.random()*Math.PI, vr: (Math.random()-0.5)*0.2,
-      size: (5+Math.random()*8)*dpr, color: colors[Math.floor(Math.random()*colors.length)], alpha: 0.8+Math.random()*0.2
+      vx: (Math.random()-0.5)*3*dpr, vy: (2+Math.random()*3)*dpr,
+      rot: Math.random()*Math.PI, vr: (Math.random()-0.5)*0.15,
+      size: (4+Math.random()*6)*dpr, color: colors[Math.floor(Math.random()*colors.length)], alpha: 0.8+Math.random()*0.2
     });
   }
 }
-function spawnSparkles(amount = 40) {
+function spawnSparkles(amount = 30) {
   const symbols = ['✨','💖','🎀','⭐','🍓','💫'];
   for (let i = 0; i < amount; i++) {
     sparkles.push({
       x: lotso.x + (Math.random()-0.5)*cw, y: lotso.y + (Math.random()-0.5)*ch*0.4,
-      size: (12+Math.random()*18)*dpr, symbol: symbols[Math.floor(Math.random()*symbols.length)], life: 0.8+Math.random()*0.5
+      size: (10+Math.random()*14)*dpr, symbol: symbols[Math.floor(Math.random()*symbols.length)], life: 0.7+Math.random()*0.4
     });
   }
 }
+
 function foundCake() {
   if (cakeFound) return;
   cakeFound = true;
   if (dpad) dpad.classList.add('hidden');
   if (birthdayConsole) { birthdayConsole.classList.add('active'); birthdayConsole.setAttribute('aria-hidden','false'); }
-  if (dialogueBox) dialogueBox.classList.remove('active');
-  if (cakeHint) cakeHint.textContent = 'Yay! Jumpa kek! Selamat Hari Lahir Sayang! 💕';
+  if (cakeHint) cakeHint.textContent = 'Yay! Surprise berjaya! Selamat Hari Lahir Sayang! 💕';
 
-  // Gather family around the cake
+  // Instantly gather family around cake (no lag)
   celebrating = true;
-  const cx = diningTable.x + diningTable.w / 2;
-  const cy = diningTable.y + diningTable.h / 2;
-  const radius = 95 * dpr;
-  celebrationTargets = npcs.map((_, i) => {
-    const angle = (i / npcs.length) * Math.PI * 2 - Math.PI / 2;
-    return { x: cx + Math.cos(angle) * radius, y: cy + Math.sin(angle) * radius };
+  const cx = diningTable.x + diningTable.w/2;
+  const cy = diningTable.y + diningTable.h/2;
+  const radius = 90*dpr;
+  npcs.forEach((npc, i) => {
+    const angle = (i / npcs.length) * Math.PI*2 - Math.PI/2;
+    npc.x = cx + Math.cos(angle) * radius;
+    npc.y = cy + Math.sin(angle) * radius;
   });
 
-  vibrate([80,60,80,60,80]); shake = 14*dpr;
-  spawnConfetti(140); spawnSparkles(50);
+  vibrate([80,60,80,60,80]); shake = 12*dpr;
+  spawnConfetti(80); spawnSparkles(30);
   wasMusicPlaying = typeof musicStarted !== 'undefined' && musicStarted && !music.paused;
   if (wasMusicPlaying) music.pause();
   playHappyBirthdaySong();
 }
+
 function playHappyBirthdaySong() {
-  if (!birthdaySong) return;
-  birthdaySong.currentTime = 0; birthdaySong.volume = 0.85;
-  birthdaySong.play().catch(() => resumeBackgroundMusic());
+  if (youtubeReady && youtubePlayer && youtubePlayer.playVideo) {
+    youtubePlayer.seekTo(0);
+    youtubePlayer.playVideo();
+  } else if (birthdaySong) {
+    birthdaySong.currentTime = 0; birthdaySong.volume = 0.85;
+    birthdaySong.play().catch(() => resumeBackgroundMusic());
+  }
 }
+
+function onYouTubeIframeAPIReady() {
+  if (document.getElementById('youtubePlayer')) {
+    youtubePlayer = new YT.Player('youtubePlayer', {
+      height: '0', width: '0', videoId: BIRTHDAY_VIDEO_ID,
+      playerVars: { autoplay: 0, controls: 0, showinfo: 0, rel: 0, loop: 0, playsinline: 1 },
+      events: {
+        onReady: () => { youtubeReady = true; },
+        onStateChange: (event) => { if (event.data === YT.PlayerState.ENDED) resumeBackgroundMusic(); }
+      }
+    });
+  }
+}
+
 function resumeBackgroundMusic() {
   if (wasMusicPlaying && typeof musicStarted !== 'undefined' && musicStarted) music.play().catch(()=>{});
 }
+
 function restartCakeGame() {
+  if (youtubePlayer && youtubePlayer.pauseVideo) youtubePlayer.pauseVideo();
   if (birthdaySong) { birthdaySong.pause(); birthdaySong.currentTime = 0; }
   resumeBackgroundMusic();
-  cakeFound = false; cakeRevealed = false; celebrating = false; celebrationTargets = [];
+  cakeFound = false; cakeRevealed = false; celebrating = false;
   moveDir = {x:0,y:0}; confetti = []; sparkles = [];
   if (dpad) dpad.classList.remove('hidden');
   if (birthdayConsole) { birthdayConsole.classList.remove('active'); birthdayConsole.setAttribute('aria-hidden','true'); }
-  if (dialogueBox) dialogueBox.classList.remove('active');
-  if (cakeHint) cakeHint.textContent = 'Sila jalan-jalan ikut je anak panah tu ye.';
+  if (cakeHint) cakeHint.textContent = 'Cari Papa, Kakak, Abang & Adik dulu.';
   buildWorld();
 }
 
+// ---------- Controls ----------
 function initCakeControls() {
   if (!dpad) return;
   const buttons = dpad.querySelectorAll('.dpad-btn');
@@ -741,6 +725,5 @@ window.addEventListener('resize', () => { if (cakeGameActive) resizeCanvas(); })
 
 window.addEventListener('DOMContentLoaded', () => {
   initCakeControls();
-  if (birthdaySong) birthdaySong.addEventListener('ended', resumeBackgroundMusic);
   if (canvas) { resizeCanvas(); imagesReady.then(() => { cakeGameActive = true; startGameLoop(); }); }
 });

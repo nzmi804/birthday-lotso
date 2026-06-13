@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=24">
-  <link rel="stylesheet" href="cake-game.css?v=24">
+  <link rel="stylesheet" href="style.css?v=25">
+  <link rel="stylesheet" href="cake-game.css?v=25">
 </head>
 <body class="notranslate">
 
@@ -29,8 +29,8 @@
   <!-- STEP 7: CAKE HUNT FINALE -->
   <section class="slide active" id="slide-cake" aria-label="Cake hunt finale">
     <div class="card cake-card">
-      <h2 class="section-title">Bantu Lotso Cari Kek 🎂</h2>
-      <p class="section-subtitle">Gerakkan Lotso pergi dekat tempat yang nampak suram tu…</p>
+      <h2 class="section-title">Bantu Lotso Cari Keluarga 🧸</h2>
+      <p class="section-subtitle">Cari semua ahli keluarga untuk buka pintu Bilik Makan…</p>
 
       <div class="room" id="room">
         <canvas class="game-canvas" id="gameCanvas" aria-label="Lotso beach birthday adventure"></canvas>
@@ -61,14 +61,17 @@
         <button class="btn btn-primary" onclick="restartCakeGame()">Main Lagi 🔄</button>
       </div>
 
-      <p class="cake-hint" id="cakeHint">Sila jalan-jalan ikut je anak panah tu ye.</p>
+      <p class="cake-hint" id="cakeHint">Cari Papa, Kakak, Abang & Adik dulu.</p>
 
       <!-- Hidden celebration placeholder (kept for JS compatibility) -->
       <div class="celebration" id="celebration" aria-hidden="true" style="display:none;"></div>
     </div>
   </section>
 
-  <!-- Birthday song audio (vocal choir) -->
+  <!-- Hidden YouTube audio player -->
+  <div id="youtubePlayer" style="display:none;" aria-hidden="true"></div>
+
+  <!-- Fallback birthday song audio -->
   <audio id="birthdaySong" preload="auto" aria-hidden="true">
     <source src="https://media.vole.wtf/happy-birthday/choir.mp3" type="audio/mpeg">
   </audio>
@@ -84,7 +87,8 @@
     🎵 There Is Romance by Kevin MacLeod
   </div>
 
-  <script src="script.js?v=24"></script>
-  <script src="cake-game.js?v=24"></script>
+  <script src="script.js?v=25"></script>
+  <script src="cake-game.js?v=25"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
