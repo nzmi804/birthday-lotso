@@ -100,17 +100,17 @@ function buildWorld() {
         { type: 'bathtub', x: ROOM_W - 160*dpr, y: 50*dpr, w: 120*dpr, h: 150*dpr, color: '#b3e5fc' },
         { type: 'sink', x: ROOM_W - 90*dpr, y: 250*dpr, w: 60*dpr, h: 50*dpr, color: '#fff' }
       ] },
-    { key: 'guest', side: 'right', row: 1, bg: '#fff3e0', locked: false,
-      npc: null,
-      furniture: [
-        { type: 'bed-small', x: ROOM_W - 155*dpr, y: 55*dpr, w: 120*dpr, h: 140*dpr, color: '#e1bee7' },
-        { type: 'toybox', x: ROOM_W - 95*dpr, y: 240*dpr, w: 70*dpr, h: 55*dpr, color: '#ffab91' }
-      ] },
-    { key: 'dining', side: 'right', row: 2, bg: '#fff8fa', locked: true,
+    { key: 'dining', side: 'right', row: 1, bg: '#fff8fa', locked: true,
       npc: null,
       furniture: [
         { type: 'fridge', x: ROOM_W - 80*dpr, y: 40*dpr, w: 55*dpr, h: 110*dpr, color: '#e3f2fd' },
         { type: 'cabinet', x: ROOM_W - 125*dpr, y: 180*dpr, w: 100*dpr, h: 55*dpr, color: '#a1887f' }
+      ] },
+    { key: 'guest', side: 'right', row: 2, bg: '#fff3e0', locked: false,
+      npc: null,
+      furniture: [
+        { type: 'bed-small', x: ROOM_W - 155*dpr, y: 55*dpr, w: 120*dpr, h: 140*dpr, color: '#e1bee7' },
+        { type: 'toybox', x: ROOM_W - 95*dpr, y: 240*dpr, w: 70*dpr, h: 55*dpr, color: '#ffab91' }
       ] }
   ];
 
@@ -572,12 +572,13 @@ function drawRoomLabels() {
   ctx.fillStyle = 'rgba(93,64,55,0.22)';
   const labels = [
     { side:'left', row:0, text:'Bilik Tidur' }, { side:'left', row:1, text:'Bilik Study' }, { side:'left', row:2, text:'Bilik Tamu' },
-    { side:'right', row:0, text:'Bilik Mandi' }, { side:'right', row:1, text:'Bilik Tetamu' }, { side:'right', row:2, text:'Bilik Makan' }
+    { side:'right', row:0, text:'Bilik Mandi' }, { side:'right', row:1, text:'Bilik Makan' }, { side:'right', row:2, text:'Bilik Tetamu' }
   ];
   labels.forEach(l => {
     const rx = l.side === 'left' ? 0 : ROOM_W + CORRIDOR_W;
     const ry = GAP + l.row * (ROOM_H + GAP);
-    ctx.fillText(l.text, rx + 14*dpr, ry + 24*dpr);
+    const text = (l.text === 'Bilik Makan' && !isDiningUnlocked()) ? '???' : l.text;
+    ctx.fillText(text, rx + 14*dpr, ry + 24*dpr);
   });
 }
 
