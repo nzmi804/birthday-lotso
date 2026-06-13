@@ -1,5 +1,5 @@
 /* ==========================
-   Lotso Beach Birthday Adventure
+   Lotso House Birthday Adventure
    ========================== */
 
 const room = document.getElementById('room');
@@ -7,8 +7,10 @@ const canvas = document.getElementById('gameCanvas');
 const cakeHint = document.getElementById('cakeHint');
 const dpad = document.getElementById('dpad');
 const birthdayConsole = document.getElementById('birthdayConsole');
-const celebration = document.getElementById('celebration');
 const birthdaySong = document.getElementById('birthdaySong');
+const dialogueBox = document.getElementById('dialogueBox');
+const dialogueName = document.getElementById('dialogueName');
+const dialogueText = document.getElementById('dialogueText');
 
 let ctx = null;
 let dpr = 1;
@@ -20,57 +22,49 @@ let cakeFound = false;
 let gameTime = 0;
 let wasMusicPlaying = false;
 
-const birthdayVideoId = null; // unused, kept for safety
-
 // Assets
 const lotsoImg = new Image();
 lotsoImg.src = 'assets/lotso.svg';
 
-const bgImg = new Image();
-bgImg.src = 'assets/beach-bg.jpg';
-
 const imagesReady = Promise.all([
-  new Promise(r => { lotsoImg.onload = r; lotsoImg.onerror = r; }),
-  new Promise(r => { bgImg.onload = r; bgImg.onerror = r; })
+  new Promise(r => { lotsoImg.onload = r; lotsoImg.onerror = r; })
 ]);
+
+// World dimensions
+const FLOOR_COUNT = 3;
+let FLOOR_H = 0;
+let GAP = 0;
+let WORLD_W = 0;
+let WORLD_H = 0;
+let STAIR_W = 0;
+let ROOM_W = 0;
 
 // Game objects
 const lotso = {
-  x: 80,
-  y: 0,
-  width: 72,
-  height: 86,
-  speed: 3.2,
-  facing: 1, // 1 right, -1 left
+  x: 0, y: 0,
+  width: 64, height: 76,
+  speed: 1.6,
+  facing: 1,
   bob: 0,
   jumpY: 0
 };
 
-const cake = {
-  x: 0,
-  y: 0,
-  width: 64,
-  height: 70,
-  glow: 0,
-  foundGlow: 0
-};
-
-const friends = [
-  { x: 0, y: 0, hue: 0,   scale: 0.82, offset: 0, flip: -1, delay: 0 },
-  { x: 0, y: 0, hue: 200, scale: 0.78, offset: 0, flip: 1,  delay: 0.2 },
-  { x: 0, y: 0, hue: 90,  scale: 0.8,  offset: 0, flip: -1, delay: 0.4 }
-];
-
-const confetti = [];
-const sparkles = [];
-const clouds = [];
-const waves = [];
-let shake = 0;
+const camera = { x: 0, y: 0 };
 
 let moveDir = { x: 0, y: 0 };
-let moveInterval = null;
 
-// Resize canvas to container with device pixel ratio
+const walls = [];
+const furniture = [];
+const npcs = [];
+let stairs = null;
+let diningTable = null;
+let cakeRevealed = false;
+
+let confetti = [];
+let sparkles = [];
+let shake = 0;
+
+// Resize canvas
 function resizeCanvas() {
   if (!room || !canvas) return;
   const rect = room.getBoundingClientRect();
@@ -82,50 +76,107 @@ function resizeCanvas() {
   canvas.style.width = rect.width + 'px';
   canvas.style.height = rect.height + 'px';
   ctx = canvas.getContext('2d');
-  resetPositions();
+  buildWorld();
 }
 
-function resetPositions() {
-  if (!cw || !ch) return;
-  // Lotso starts top-left area
-  lotso.x = 70;
-  lotso.y = ch * 0.22;
+function floorTop(floorIndex) {
+  // floorIndex 0 = tingkat 1 (bottom), 2 = tingkat 3 (top)
+  return GAP + (FLOOR_COUNT - 1 - floorIndex) * (FLOOR_H + GAP);
+}
+
+function buildWorld() {
+  FLOOR_H = 540 * dpr;
+  GAP = 36 * dpr;
+  WORLD_W = cw;
+  WORLD_H = FLOOR_COUNT * FLOOR_H + (FLOOR_COUNT + 1) * GAP;
+  STAIR_W = 130 * dpr;
+  ROOM_W = WORLD_W - STAIR_W;
+
+  walls.length = 0;
+  furniture.length = 0;
+  npcs.length = 0;
+
+  // Outer walls and floor separators
+  for (let f = 0; f < FLOOR_COUNT; f++) {
+    const top = floorTop(f);
+    const bottom = top + FLOOR_H;
+    // left wall
+    walls.push({ x: 0, y: top, w: 12 * dpr, h: FLOOR_H });
+    // right wall between room and stairs (only top & bottom segments, leaving door)
+    const doorTop = top + 70 * dpr;
+    const doorBottom = bottom - 70 * dpr;
+    walls.push({ x: ROOM_W, y: top, w: 10 * dpr, h: doorTop - top }); // top segment
+    walls.push({ x: ROOM_W, y: doorBottom, w: 10 * dpr, h: bottom - doorBottom }); // bottom segment
+    // floor separator below (except bottom floor) — only across rooms, leave stairwell open
+    if (f > 0) {
+      walls.push({ x: 0, y: bottom, w: ROOM_W + 10 * dpr, h: GAP });
+    }
+  }
+
+  // Stairwell walls (left side of stairs)
+  walls.push({ x: ROOM_W, y: 0, w: 10 * dpr, h: WORLD_H });
+
+  // Stairs bounds
+  stairs = { x: ROOM_W + 15 * dpr, y: GAP, w: STAIR_W - 20 * dpr, h: WORLD_H - 2 * GAP };
+
+  // Furniture & NPCs
+  // ---- Tingkat 3 (top) — bedroom ----
+  const f3 = floorTop(2);
+  furniture.push({ type: 'bed', x: 40 * dpr, y: f3 + 80 * dpr, w: 160 * dpr, h: 200 * dpr, color: '#ffb3c1' });
+  furniture.push({ type: 'wardrobe', x: ROOM_W - 140 * dpr, y: f3 + 60 * dpr, w: 100 * dpr, h: 170 * dpr, color: '#a1887f' });
+  furniture.push({ type: 'rug', x: 60 * dpr, y: f3 + 320 * dpr, w: 180 * dpr, h: 120 * dpr, color: '#ffccd5' });
+  npcs.push({
+    name: 'Awak',
+    x: ROOM_W * 0.55, y: f3 + 200 * dpr,
+    color: '#ff4d6d',
+    hair: '#5e2a35',
+    dialogue: 'Lotso, kek birthday sayang ada atas meja makan di tingkat bawah. Tolong ambilkan ye! 💕'
+  });
+
+  // ---- Tingkat 2 — study / lounge ----
+  const f2 = floorTop(1);
+  furniture.push({ type: 'bookshelf', x: 30 * dpr, y: f2 + 60 * dpr, w: 90 * dpr, h: 220 * dpr, color: '#8d6e63' });
+  furniture.push({ type: 'sofa', x: ROOM_W - 180 * dpr, y: f2 + 100 * dpr, w: 150 * dpr, h: 80 * dpr, color: '#ff8fab' });
+  furniture.push({ type: 'tv', x: ROOM_W - 150 * dpr, y: f2 + 260 * dpr, w: 110 * dpr, h: 70 * dpr, color: '#5e2a35' });
+  npcs.push({
+    name: 'Mama Bear',
+    x: ROOM_W * 0.3, y: f2 + 200 * dpr,
+    color: '#fb6f92', hair: '#5e2a35',
+    dialogue: 'Hati-hati turun tangga, Lotso. Jangan terbabas! 🧸'
+  });
+  npcs.push({
+    name: 'Adik Bear',
+    x: ROOM_W * 0.65, y: f2 + 360 * dpr,
+    color: '#81d4fa', hair: '#5e2a35',
+    dialogue: 'Aku dah bau kek dari bawah! Cepat Lotso! 🎂'
+  });
+
+  // ---- Tingkat 1 (bottom) — living / dining ----
+  const f1 = floorTop(0);
+  furniture.push({ type: 'sofa', x: 40 * dpr, y: f1 + 80 * dpr, w: 170 * dpr, h: 90 * dpr, color: '#ff99aa' });
+  furniture.push({ type: 'plant', x: 230 * dpr, y: f1 + 80 * dpr, w: 60 * dpr, h: 90 * dpr, color: '#66bb6a' });
+  furniture.push({ type: 'tv', x: 60 * dpr, y: f1 + 260 * dpr, w: 120 * dpr, h: 80 * dpr, color: '#5e2a35' });
+
+  diningTable = { x: ROOM_W - 170 * dpr, y: f1 + 260 * dpr, w: 150 * dpr, h: 90 * dpr };
+  furniture.push({ type: 'table', ...diningTable, color: '#d7ccc8' });
+
+  npcs.push({
+    name: 'Papa Bear',
+    x: ROOM_W * 0.25, y: f1 + 380 * dpr,
+    color: '#4fc3f7', hair: '#5e2a35',
+    dialogue: 'Meja makan tu kat sebelah kanan, Lotso. Cepat pergi! 🍽️'
+  });
+  npcs.push({
+    name: 'Nenek Bear',
+    x: ROOM_W * 0.72, y: f1 + 180 * dpr,
+    color: '#ce93d8', hair: '#7a3d4d',
+    dialogue: 'Surprise! Kek tu dah siap menunggu atas meja makan. 🎉'
+  });
+
+  // Lotso starts on tingkat 3 (top floor)
+  lotso.x = ROOM_W * 0.45;
+  lotso.y = f3 + 360 * dpr;
   lotso.facing = 1;
-
-  // Cake placed on the sand (bottom-right)
-  cake.x = cw - 110;
-  cake.y = ch - 115;
-  cake.glow = 0;
-  cake.foundGlow = 0;
-
-  // Friends around the cake
-  friends[0].x = cake.x - 90; friends[0].y = cake.y + 10;
-  friends[1].x = cake.x + 80;  friends[1].y = cake.y - 5;
-  friends[2].x = cake.x;       friends[2].y = cake.y + 75;
-
-  // Decorative clouds
-  clouds.length = 0;
-  for (let i = 0; i < 4; i++) {
-    clouds.push({
-      x: Math.random() * cw,
-      y: Math.random() * ch * 0.25,
-      w: 60 + Math.random() * 80,
-      speed: 0.15 + Math.random() * 0.25
-    });
-  }
-
-  // Wave layers
-  waves.length = 0;
-  for (let i = 0; i < 3; i++) {
-    waves.push({
-      y: ch * (0.58 + i * 0.05),
-      amp: 3 + i * 2,
-      freq: 0.008 + i * 0.003,
-      speed: 0.02 + i * 0.01,
-      phase: i * 2,
-      alpha: 0.25 - i * 0.06
-    });
-  }
 }
 
 // ---------- Game loop ----------
@@ -143,40 +194,57 @@ function gameLoop(timestamp) {
 }
 
 function update() {
-  // Move Lotso
-  if (!cakeFound && (moveDir.x !== 0 || moveDir.y !== 0)) {
-    lotso.x += moveDir.x * lotso.speed * dpr;
-    lotso.y += moveDir.y * lotso.speed * dpr;
-    if (moveDir.x !== 0) lotso.facing = moveDir.x > 0 ? 1 : -1;
-    clampLotso();
+  if (!cakeFound) {
+    // Try move
+    let dx = moveDir.x * lotso.speed * dpr;
+    let dy = moveDir.y * lotso.speed * dpr;
+
+    if (dx !== 0 || dy !== 0) {
+      if (dx !== 0) lotso.facing = dx > 0 ? 1 : -1;
+
+      // Move X and resolve collisions
+      lotso.x += dx;
+      resolveCollision('x');
+      // Move Y and resolve collisions
+      lotso.y += dy;
+      resolveCollision('y');
+
+      // Keep inside world
+      lotso.x = Math.max(12 * dpr, Math.min(lotso.x, WORLD_W - lotso.width - 12 * dpr));
+      lotso.y = Math.max(12 * dpr, Math.min(lotso.y, WORLD_H - lotso.height - 12 * dpr));
+    }
   }
 
-  // Idle / walking bob
-  const bobSpeed = (moveDir.x !== 0 || moveDir.y !== 0) ? 12 : 4;
-  lotso.bob = Math.sin(gameTime * bobSpeed) * 4 * dpr;
+  // Bobbing
+  const moving = moveDir.x !== 0 || moveDir.y !== 0;
+  lotso.bob = Math.sin(gameTime * (moving ? 10 : 3)) * 3 * dpr;
 
   // Celebration jump
   if (cakeFound) {
-    lotso.jumpY = Math.abs(Math.sin(gameTime * 8)) * -22 * dpr;
+    lotso.jumpY = Math.abs(Math.sin(gameTime * 8)) * -18 * dpr;
   } else {
     lotso.jumpY = 0;
   }
 
-  // Cake glow pulse
-  cake.glow = 0.3 + Math.sin(gameTime * 3) * 0.15;
-  if (cakeFound) cake.foundGlow = Math.min(cake.foundGlow + 0.04, 1);
+  // Camera follow with smoothing
+  const targetCamX = 0; // world is as wide as screen, no horizontal scroll
+  const targetCamY = lotso.y + lotso.height / 2 - ch / 2;
+  camera.x += (targetCamX - camera.x) * 0.12;
+  camera.y += (targetCamY - camera.y) * 0.12;
+  camera.y = Math.max(0, Math.min(camera.y, WORLD_H - ch));
 
-  // Confetti
+  // NPC dialogue
+  updateDialogue();
+
+  // Confetti & sparkles
   for (let i = confetti.length - 1; i >= 0; i--) {
     const c = confetti[i];
     c.x += c.vx;
     c.y += c.vy;
     c.rot += c.vr;
     c.vy += 0.05 * dpr;
-    if (c.y > ch + 20) confetti.splice(i, 1);
+    if (c.y > camera.y + ch + 30) confetti.splice(i, 1);
   }
-
-  // Sparkles
   for (let i = sparkles.length - 1; i >= 0; i--) {
     const s = sparkles[i];
     s.life -= 0.015;
@@ -184,30 +252,81 @@ function update() {
     if (s.life <= 0) sparkles.splice(i, 1);
   }
 
-  // Clouds
-  clouds.forEach(cloud => {
-    cloud.x += cloud.speed * dpr;
-    if (cloud.x > cw + cloud.w) cloud.x = -cloud.w;
-  });
-
   // Camera shake decay
   if (shake > 0) shake *= 0.92;
   if (shake < 0.3) shake = 0;
 
-  if (!cakeFound) checkCakeFound();
+  if (!cakeFound && !cakeRevealed) checkCakeFound();
 }
 
-function clampLotso() {
-  const pad = 20 * dpr;
-  lotso.x = Math.max(pad, Math.min(lotso.x, cw - lotso.width - pad));
-  lotso.y = Math.max(pad, Math.min(lotso.y, ch - lotso.height - pad));
+function resolveCollision(axis) {
+  const lotsoRect = { x: lotso.x, y: lotso.y, w: lotso.width * dpr, h: lotso.height * dpr };
+  for (const w of walls) {
+    if (rectIntersect(lotsoRect, w)) {
+      if (axis === 'x') {
+        if (lotso.x < w.x) lotso.x = w.x - lotsoRect.w;
+        else lotso.x = w.x + w.w;
+      } else {
+        if (lotso.y < w.y) lotso.y = w.y - lotsoRect.h;
+        else lotso.y = w.y + w.h;
+      }
+    }
+  }
+  for (const f of furniture) {
+    if (rectIntersect(lotsoRect, { x: f.x, y: f.y, w: f.w, h: f.h })) {
+      if (axis === 'x') {
+        if (lotso.x < f.x) lotso.x = f.x - lotsoRect.w;
+        else lotso.x = f.x + f.w;
+      } else {
+        if (lotso.y < f.y) lotso.y = f.y - lotsoRect.h;
+        else lotso.y = f.y + f.h;
+      }
+    }
+  }
+}
+
+function rectIntersect(a, b) {
+  return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+}
+
+function currentFloor() {
+  for (let f = 0; f < FLOOR_COUNT; f++) {
+    const top = floorTop(f);
+    if (lotso.y >= top && lotso.y < top + FLOOR_H) return f;
+  }
+  return 0;
+}
+
+function updateDialogue() {
+  let activeNpc = null;
+  for (const npc of npcs) {
+    const dx = (lotso.x + lotso.width * dpr / 2) - npc.x;
+    const dy = (lotso.y + lotso.height * dpr / 2) - npc.y;
+    if (Math.hypot(dx, dy) < 85 * dpr) {
+      activeNpc = npc;
+      break;
+    }
+  }
+
+  if (activeNpc) {
+    dialogueName.textContent = activeNpc.name;
+    dialogueText.textContent = activeNpc.dialogue;
+    dialogueBox.classList.add('active');
+    dialogueBox.setAttribute('aria-hidden', 'false');
+  } else {
+    dialogueBox.classList.remove('active');
+    dialogueBox.setAttribute('aria-hidden', 'true');
+  }
 }
 
 function checkCakeFound() {
-  const dx = (lotso.x + lotso.width / 2) - (cake.x + cake.width / 2);
-  const dy = (lotso.y + lotso.height / 2) - (cake.y + cake.height / 2);
-  const dist = Math.hypot(dx, dy);
-  if (dist < 70 * dpr) {
+  if (!diningTable) return;
+  const cx = lotso.x + lotso.width * dpr / 2;
+  const cy = lotso.y + lotso.height * dpr / 2;
+  const tx = diningTable.x + diningTable.w / 2;
+  const ty = diningTable.y + diningTable.h / 2;
+  if (Math.hypot(cx - tx, cy - ty) < 90 * dpr) {
+    cakeRevealed = true;
     foundCake();
   }
 }
@@ -217,179 +336,246 @@ function draw() {
   if (!ctx) return;
   ctx.save();
 
-  // Camera shake
   if (shake > 0) {
     ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
   }
 
-  // Background image (beach photo)
-  if (bgImg.complete && bgImg.naturalWidth) {
-    drawCoverImage(bgImg, 0, 0, cw, ch);
-  } else {
-    // Fallback gradient
-    const grd = ctx.createLinearGradient(0, 0, 0, ch);
-    grd.addColorStop(0, '#ffdde1');
-    grd.addColorStop(0.55, '#81d4fa');
-    grd.addColorStop(1, '#ffecb3');
-    ctx.fillStyle = grd;
-    ctx.fillRect(0, 0, cw, ch);
-  }
+  // Clear
+  ctx.fillStyle = '#3e2723';
+  ctx.fillRect(0, 0, cw, ch);
 
-  drawSun();
-  drawClouds();
-  drawWaves();
-  drawCake();
-  drawFriends();
+  // Apply camera
+  ctx.translate(-camera.x, -camera.y);
+
+  drawHouse();
+  drawStairs();
+  drawFurniture();
+  drawNPCs();
+  drawDiningCake();
   drawLotso();
-  drawArrow();
-  drawOverlay();
+  drawFloorLabels();
   drawConfetti();
   drawSparkles();
 
   ctx.restore();
 }
 
-function drawCoverImage(img, x, y, w, h) {
-  const imgRatio = img.naturalWidth / img.naturalHeight;
-  const targetRatio = w / h;
-  let dw, dh, dx, dy;
-  if (imgRatio > targetRatio) {
-    dh = h;
-    dw = dh * imgRatio;
-    dx = x - (dw - w) / 2;
-    dy = y;
-  } else {
-    dw = w;
-    dh = dw / imgRatio;
-    dx = x;
-    dy = y - (dh - h) / 2;
-  }
-  ctx.drawImage(img, dx, dy, dw, dh);
-}
+function drawHouse() {
+  for (let f = 0; f < FLOOR_COUNT; f++) {
+    const top = floorTop(f);
 
-function drawSun() {
-  const x = cw * 0.78;
-  const y = ch * 0.14;
-  const r = 36 * dpr;
-  const glow = ctx.createRadialGradient(x, y, r * 0.4, x, y, r * 3);
-  glow.addColorStop(0, 'rgba(255, 240, 200, 0.9)');
-  glow.addColorStop(0.3, 'rgba(255, 220, 150, 0.35)');
-  glow.addColorStop(1, 'rgba(255, 220, 150, 0)');
-  ctx.fillStyle = glow;
-  ctx.beginPath();
-  ctx.arc(x, y, r * 3, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = 'rgba(255, 250, 220, 0.95)';
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI * 2);
-  ctx.fill();
-}
-
-function drawClouds() {
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  clouds.forEach(c => {
-    ctx.beginPath();
-    ctx.ellipse(c.x, c.y, c.w * 0.5, c.w * 0.18, 0, 0, Math.PI * 2);
-    ctx.ellipse(c.x + c.w * 0.25, c.y + c.w * 0.05, c.w * 0.35, c.w * 0.14, 0, 0, Math.PI * 2);
-    ctx.ellipse(c.x - c.w * 0.25, c.y + c.w * 0.05, c.w * 0.3, c.w * 0.12, 0, 0, Math.PI * 2);
-    ctx.fill();
-  });
-}
-
-function drawWaves() {
-  waves.forEach(w => {
-    ctx.fillStyle = `rgba(255, 255, 255, ${w.alpha})`;
-    ctx.beginPath();
-    for (let x = 0; x <= cw; x += 8 * dpr) {
-      const y = w.y + Math.sin(x * w.freq + gameTime * w.speed * 60 + w.phase) * w.amp * dpr;
-      if (x === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
+    // Floor background
+    const grd = ctx.createLinearGradient(0, top, 0, top + FLOOR_H);
+    if (f === 2) { // bedroom
+      grd.addColorStop(0, '#fff0f3');
+      grd.addColorStop(1, '#ffe6ec');
+    } else if (f === 1) { // lounge
+      grd.addColorStop(0, '#fff5f7');
+      grd.addColorStop(1, '#ffdee6');
+    } else { // dining/living
+      grd.addColorStop(0, '#fff8fa');
+      grd.addColorStop(1, '#ffdce4');
     }
-    ctx.lineTo(cw, ch);
-    ctx.lineTo(0, ch);
-    ctx.closePath();
-    ctx.fill();
-  });
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, top, WORLD_W, FLOOR_H);
+
+    // Floor wood pattern
+    ctx.strokeStyle = 'rgba(141, 110, 99, 0.08)';
+    ctx.lineWidth = 2 * dpr;
+    for (let i = 0; i < FLOOR_H; i += 40 * dpr) {
+      ctx.beginPath();
+      ctx.moveTo(0, top + i);
+      ctx.lineTo(ROOM_W, top + i);
+      ctx.stroke();
+    }
+  }
+
+  // Walls
+  ctx.fillStyle = '#6d4c41';
+  for (const w of walls) {
+    ctx.fillRect(w.x, w.y, w.w, w.h);
+  }
+
+  // Wall shadows
+  ctx.fillStyle = 'rgba(0,0,0,0.08)';
+  for (const w of walls) {
+    ctx.fillRect(w.x + w.w, w.y, 6 * dpr, w.h);
+    ctx.fillRect(w.x, w.y + w.h, w.w, 6 * dpr);
+  }
 }
 
-function drawCake() {
-  const x = cake.x;
-  const y = cake.y;
-  const w = cake.width;
-  const h = cake.height;
+function drawStairs() {
+  if (!stairs) return;
+  // Stairwell background
+  ctx.fillStyle = '#5d4037';
+  ctx.fillRect(stairs.x, stairs.y, stairs.w, stairs.h);
+
+  // Steps
+  const stepH = 28 * dpr;
+  const stepCount = Math.ceil(stairs.h / stepH);
+  for (let i = 0; i < stepCount; i++) {
+    const y = stairs.y + i * stepH;
+    ctx.fillStyle = i % 2 === 0 ? '#8d6e63' : '#795548';
+    ctx.fillRect(stairs.x, y, stairs.w, stepH);
+    ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+    ctx.lineWidth = 2 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(stairs.x, y + stepH);
+    ctx.lineTo(stairs.x + stairs.w, y + stepH);
+    ctx.stroke();
+  }
+
+  // Handrail
+  ctx.strokeStyle = '#d7ccc8';
+  ctx.lineWidth = 6 * dpr;
+  ctx.beginPath();
+  ctx.moveTo(stairs.x + 10 * dpr, stairs.y);
+  ctx.lineTo(stairs.x + 10 * dpr, stairs.y + stairs.h);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(stairs.x + stairs.w - 10 * dpr, stairs.y);
+  ctx.lineTo(stairs.x + stairs.w - 10 * dpr, stairs.y + stairs.h);
+  ctx.stroke();
+}
+
+function drawFurniture() {
+  for (const f of furniture) {
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.fillRect(f.x + 6 * dpr, f.y + 6 * dpr, f.w, f.h);
+
+    // Body
+    ctx.fillStyle = f.color;
+    roundRect(f.x, f.y, f.w, f.h, 8 * dpr);
+    ctx.fill();
+
+    // Detail based on type
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    if (f.type === 'bed') {
+      ctx.fillRect(f.x + 10 * dpr, f.y + 10 * dpr, f.w - 20 * dpr, f.h * 0.35);
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(f.x + 15 * dpr, f.y + 18 * dpr, f.w * 0.3, f.h * 0.18);
+      ctx.fillRect(f.x + f.w - f.w * 0.3 - 15 * dpr, f.y + 18 * dpr, f.w * 0.3, f.h * 0.18);
+    } else if (f.type === 'sofa') {
+      ctx.fillStyle = 'rgba(0,0,0,0.1)';
+      ctx.fillRect(f.x + 10 * dpr, f.y + f.h - 20 * dpr, f.w - 20 * dpr, 14 * dpr);
+    } else if (f.type === 'bookshelf') {
+      ctx.fillStyle = 'rgba(255,255,255,0.15)';
+      for (let i = 1; i <= 4; i++) {
+        ctx.fillRect(f.x + 8 * dpr, f.y + i * (f.h / 5), f.w - 16 * dpr, 4 * dpr);
+      }
+    } else if (f.type === 'tv') {
+      ctx.fillStyle = '#263238';
+      ctx.fillRect(f.x + 10 * dpr, f.y + 10 * dpr, f.w - 20 * dpr, f.h - 20 * dpr);
+    } else if (f.type === 'plant') {
+      ctx.fillStyle = '#2e7d32';
+      ctx.beginPath();
+      ctx.arc(f.x + f.w / 2, f.y + f.h * 0.35, f.w * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#795548';
+      ctx.fillRect(f.x + f.w * 0.35, f.y + f.h * 0.55, f.w * 0.3, f.h * 0.45);
+    } else if (f.type === 'table') {
+      ctx.fillStyle = 'rgba(0,0,0,0.08)';
+      ctx.fillRect(f.x + 10 * dpr, f.y + 10 * dpr, f.w - 20 * dpr, f.h - 20 * dpr);
+    }
+  }
+}
+
+function drawDiningCake() {
+  if (!cakeRevealed || !diningTable) return;
+  const cx = diningTable.x + diningTable.w / 2;
+  const cy = diningTable.y - 30 * dpr;
+  const w = 60 * dpr;
+  const h = 55 * dpr;
+
+  // Glow
+  const g = ctx.createRadialGradient(cx, cy, w * 0.3, cx, cy, w * 1.6);
+  g.addColorStop(0, 'rgba(255, 215, 0, 0.5)');
+  g.addColorStop(1, 'rgba(255, 215, 0, 0)');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.arc(cx, cy, w * 1.6, 0, Math.PI * 2);
+  ctx.fill();
 
   // Plate
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
   ctx.beginPath();
-  ctx.ellipse(x + w / 2, y + h - 4 * dpr, w * 0.65, 8 * dpr, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx, cy + h * 0.45, w * 0.7, 8 * dpr, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Base tier
+  // Cake tiers
   ctx.fillStyle = '#8d5524';
-  roundRect(x, y + h * 0.35, w, h * 0.55, 8 * dpr);
+  roundRect(cx - w * 0.5, cy, w, h * 0.55, 6 * dpr);
   ctx.fill();
-
-  // Frosting drip base
   ctx.fillStyle = '#ff99aa';
-  ctx.beginPath();
-  ctx.moveTo(x, y + h * 0.42);
-  ctx.lineTo(x + w, y + h * 0.42);
-  ctx.lineTo(x + w, y + h * 0.55);
-  for (let i = 0; i < 5; i++) {
-    const px = x + w - (i + 1) * (w / 5);
-    ctx.lineTo(px + w / 10, y + h * 0.72);
-    ctx.lineTo(px, y + h * 0.55);
-  }
-  ctx.lineTo(x, y + h * 0.55);
-  ctx.closePath();
+  roundRect(cx - w * 0.45, cy - h * 0.05, w * 0.9, h * 0.2, 5 * dpr);
   ctx.fill();
-
-  // Top tier
   ctx.fillStyle = '#a66a36';
-  roundRect(x + w * 0.12, y + h * 0.1, w * 0.76, h * 0.35, 6 * dpr);
-  ctx.fill();
-
-  // Top frosting
-  ctx.fillStyle = '#ffb3c1';
-  roundRect(x + w * 0.08, y + h * 0.08, w * 0.84, h * 0.12, 6 * dpr);
+  roundRect(cx - w * 0.35, cy - h * 0.45, w * 0.7, h * 0.45, 5 * dpr);
   ctx.fill();
 
   // Candles
   const candleW = 4 * dpr;
-  const candleH = 16 * dpr;
-  const cx1 = x + w * 0.35;
-  const cx2 = x + w * 0.65;
-  const cy = y + h * 0.08 - candleH;
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(cx1 - candleW / 2, cy, candleW, candleH);
-  ctx.fillRect(cx2 - candleW / 2, cy, candleW, candleH);
-
-  // Flames
-  drawFlame(cx1, cy, gameTime * 10);
-  drawFlame(cx2, cy, gameTime * 12 + 1);
-
-  // Glow when found
-  if (cakeFound || cake.foundGlow > 0) {
-    const glowR = (w * 1.2) * (0.8 + cake.foundGlow * 0.5);
-    const g = ctx.createRadialGradient(x + w / 2, y + h / 2, w * 0.3, x + w / 2, y + h / 2, glowR);
-    g.addColorStop(0, `rgba(255, 215, 0, ${0.4 + cake.foundGlow * 0.4})`);
-    g.addColorStop(1, 'rgba(255, 215, 0, 0)');
-    ctx.fillStyle = g;
+  const candleH = 14 * dpr;
+  [-w * 0.15, w * 0.15].forEach(off => {
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(cx + off - candleW / 2, cy - h * 0.45 - candleH, candleW, candleH);
+    // flame
+    const flicker = Math.sin(gameTime * 12 + off) * 1.5 * dpr;
+    ctx.fillStyle = 'rgba(255, 200, 50, 0.9)';
     ctx.beginPath();
-    ctx.arc(x + w / 2, y + h / 2, glowR, 0, Math.PI * 2);
+    ctx.moveTo(cx + off, cy - h * 0.45 - candleH + flicker);
+    ctx.quadraticCurveTo(cx + off - 4 * dpr, cy - h * 0.45 - candleH - 8 * dpr, cx + off, cy - h * 0.45 - candleH - 14 * dpr + flicker);
+    ctx.quadraticCurveTo(cx + off + 4 * dpr, cy - h * 0.45 - candleH - 8 * dpr, cx + off, cy - h * 0.45 - candleH + flicker);
     ctx.fill();
+  });
+}
+
+function drawNPCs() {
+  for (const npc of npcs) {
+    drawPerson(npc.x, npc.y, npc.color, npc.hair);
   }
 }
 
-function drawFlame(x, yBase, time) {
-  const flicker = Math.sin(time) * 1.5 * dpr;
-  ctx.fillStyle = 'rgba(255, 200, 50, 0.9)';
+function drawPerson(x, y, bodyColor, hairColor) {
+  const scale = dpr;
+  // Shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.15)';
   ctx.beginPath();
-  ctx.moveTo(x, yBase + flicker);
-  ctx.quadraticCurveTo(x - 4 * dpr, yBase - 8 * dpr, x, yBase - 14 * dpr + flicker);
-  ctx.quadraticCurveTo(x + 4 * dpr, yBase - 8 * dpr, x, yBase + flicker);
+  ctx.ellipse(x, y + 32 * scale, 18 * scale, 5 * scale, 0, 0, Math.PI * 2);
   ctx.fill();
+
+  // Body
+  ctx.fillStyle = bodyColor;
+  ctx.beginPath();
+  ctx.ellipse(x, y + 10 * scale, 18 * scale, 22 * scale, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Head
+  ctx.fillStyle = '#ffe0bd';
+  ctx.beginPath();
+  ctx.arc(x, y - 16 * scale, 14 * scale, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Hair
+  ctx.fillStyle = hairColor;
+  ctx.beginPath();
+  ctx.arc(x, y - 20 * scale, 15 * scale, Math.PI, 0);
+  ctx.fill();
+
+  // Eyes
+  ctx.fillStyle = '#3e2723';
+  ctx.beginPath();
+  ctx.arc(x - 5 * scale, y - 16 * scale, 2 * scale, 0, Math.PI * 2);
+  ctx.arc(x + 5 * scale, y - 16 * scale, 2 * scale, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Smile
+  ctx.strokeStyle = '#3e2723';
+  ctx.lineWidth = 1.5 * scale;
+  ctx.beginPath();
+  ctx.arc(x, y - 13 * scale, 5 * scale, 0.2, Math.PI - 0.2);
+  ctx.stroke();
 }
 
 function drawLotso() {
@@ -400,9 +586,9 @@ function drawLotso() {
   const y = lotso.y + lotso.bob + lotso.jumpY;
 
   // Shadow
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
+  ctx.fillStyle = 'rgba(0,0,0,0.18)';
   ctx.beginPath();
-  ctx.ellipse(x + w / 2, y + h - 4 * dpr, w * 0.45, 8 * dpr, 0, 0, Math.PI * 2);
+  ctx.ellipse(x + w / 2, y + h - 3 * dpr, w * 0.42, 7 * dpr, 0, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.save();
@@ -412,78 +598,14 @@ function drawLotso() {
   ctx.restore();
 }
 
-function drawFriends() {
-  if (!cakeFound && cake.foundGlow <= 0) return;
-  const appear = cakeFound ? 1 : cake.foundGlow * 2;
-
-  friends.forEach((f, i) => {
-    const fx = f.x;
-    const fy = f.y + Math.sin(gameTime * 6 + i) * 8 * dpr * (cakeFound ? 1 : 0);
-    const s = f.scale * dpr * appear;
-    const w = lotso.width * s;
-    const h = lotso.height * s;
-
-    // Shadow
-    ctx.fillStyle = `rgba(0,0,0,${0.15 * appear})`;
-    ctx.beginPath();
-    ctx.ellipse(fx + w / 2, fy + h - 2 * dpr, w * 0.45, 6 * dpr, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.save();
-    ctx.globalAlpha = appear;
-    ctx.filter = `hue-rotate(${f.hue}deg)`;
-    ctx.translate(fx + w / 2, fy + h / 2);
-    ctx.scale(f.flip * (w / lotsoImg.naturalWidth), h / lotsoImg.naturalHeight);
-    ctx.drawImage(lotsoImg, -lotsoImg.naturalWidth / 2, -lotsoImg.naturalHeight / 2);
-    ctx.restore();
-  });
-}
-
-function drawArrow() {
-  if (cakeFound) return;
-  const lx = lotso.x + lotso.width * dpr / 2;
-  const ly = lotso.y - 24 * dpr;
-  const cx = cake.x + cake.width / 2;
-  const cy = cake.y + cake.height / 2;
-  const angle = Math.atan2(cy - ly, cx - lx);
-  const len = 28 * dpr;
-  const ax = lx + Math.cos(angle) * len;
-  const ay = ly + Math.sin(angle) * len;
-
-  ctx.strokeStyle = 'rgba(255, 77, 109, 0.9)';
-  ctx.fillStyle = 'rgba(255, 77, 109, 0.9)';
-  ctx.lineWidth = 4 * dpr;
-  ctx.lineCap = 'round';
-  ctx.beginPath();
-  ctx.moveTo(lx, ly);
-  ctx.lineTo(ax, ay);
-  ctx.stroke();
-
-  // Arrow head
-  ctx.beginPath();
-  ctx.moveTo(ax, ay);
-  ctx.lineTo(ax - 8 * dpr * Math.cos(angle - Math.PI / 6), ay - 8 * dpr * Math.sin(angle - Math.PI / 6));
-  ctx.lineTo(ax - 8 * dpr * Math.cos(angle + Math.PI / 6), ay - 8 * dpr * Math.sin(angle + Math.PI / 6));
-  ctx.closePath();
-  ctx.fill();
-}
-
-function drawOverlay() {
-  if (cakeFound && cake.foundGlow >= 1) return;
-  const darkness = cakeFound ? 0.15 : 0.78;
-  const alpha = cakeFound ? 0.15 : darkness;
-
-  const lx = lotso.x + lotso.width * dpr / 2;
-  const ly = lotso.y + lotso.height * dpr / 2;
-  const r = (cakeFound ? 220 : 90) * dpr;
-
-  const g = ctx.createRadialGradient(lx, ly, 0, lx, ly, r * 3);
-  g.addColorStop(0, `rgba(30, 15, 25, 0)`);
-  g.addColorStop(0.35, `rgba(30, 15, 25, ${alpha * 0.4})`);
-  g.addColorStop(1, `rgba(30, 15, 25, ${alpha})`);
-
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, cw, ch);
+function drawFloorLabels() {
+  ctx.font = `bold ${18 * dpr}px Quicksand, sans-serif`;
+  ctx.fillStyle = 'rgba(93, 64, 55, 0.25)';
+  for (let f = 0; f < FLOOR_COUNT; f++) {
+    const top = floorTop(f);
+    const label = f === 2 ? 'Tingkat 3' : f === 1 ? 'Tingkat 2' : 'Tingkat 1';
+    ctx.fillText(label, 18 * dpr, top + 30 * dpr);
+  }
 }
 
 function drawConfetti() {
@@ -503,7 +625,7 @@ function drawSparkles() {
     ctx.save();
     ctx.globalAlpha = s.life;
     ctx.fillStyle = '#fff';
-    ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+    ctx.shadowColor = 'rgba(255,255,255,0.8)';
     ctx.shadowBlur = 10 * dpr;
     ctx.font = `${s.size}px serif`;
     ctx.fillText(s.symbol, s.x, s.y);
@@ -527,12 +649,12 @@ function roundRect(x, y, w, h, r) {
 }
 
 // ---------- Effects ----------
-function spawnConfetti(amount = 100) {
-  const colors = ['#ff4d6d', '#ff8fab', '#ffb3c1', '#fff', '#ffccd5', '#c77dff', '#ffd700', '#87CEEB'];
+function spawnConfetti(amount = 120) {
+  const colors = ['#ff4d6d', '#ff8fab', '#ffb3c1', '#fff', '#ffccd5', '#c77dff', '#ffd700'];
   for (let i = 0; i < amount; i++) {
     confetti.push({
-      x: Math.random() * cw,
-      y: -Math.random() * ch * 0.5,
+      x: lotso.x + (Math.random() - 0.5) * cw,
+      y: lotso.y - Math.random() * ch * 0.4,
       vx: (Math.random() - 0.5) * 4 * dpr,
       vy: (2 + Math.random() * 4) * dpr,
       rot: Math.random() * Math.PI,
@@ -548,8 +670,8 @@ function spawnSparkles(amount = 40) {
   const symbols = ['✨', '💖', '🎀', '⭐', '🍓', '💫'];
   for (let i = 0; i < amount; i++) {
     sparkles.push({
-      x: cake.x + (Math.random() - 0.5) * cake.width * 3,
-      y: cake.y + (Math.random() - 0.5) * cake.height * 2,
+      x: lotso.x + (Math.random() - 0.5) * cw,
+      y: lotso.y + (Math.random() - 0.5) * ch * 0.4,
       size: (12 + Math.random() * 18) * dpr,
       symbol: symbols[Math.floor(Math.random() * symbols.length)],
       life: 0.8 + Math.random() * 0.5
@@ -566,14 +688,14 @@ function foundCake() {
     birthdayConsole.classList.add('active');
     birthdayConsole.setAttribute('aria-hidden', 'false');
   }
-  if (cakeHint) cakeHint.textContent = 'Yay! Dah sampai! Selamat Hari Lahir Sayang! 💕';
+  if (dialogueBox) dialogueBox.classList.remove('active');
+  if (cakeHint) cakeHint.textContent = 'Yay! Jumpa kek! Selamat Hari Lahir Sayang! 💕';
 
   vibrate([80, 60, 80, 60, 80]);
   shake = 14 * dpr;
   spawnConfetti(140);
   spawnSparkles(50);
 
-  // Pause background music and play birthday song
   wasMusicPlaying = typeof musicStarted !== 'undefined' && musicStarted && !music.paused;
   if (wasMusicPlaying) music.pause();
   playHappyBirthdaySong();
@@ -583,9 +705,7 @@ function playHappyBirthdaySong() {
   if (!birthdaySong) return;
   birthdaySong.currentTime = 0;
   birthdaySong.volume = 0.85;
-  birthdaySong.play().catch(() => {
-    resumeBackgroundMusic();
-  });
+  birthdaySong.play().catch(() => resumeBackgroundMusic());
 }
 
 function resumeBackgroundMusic() {
@@ -602,18 +722,20 @@ function restartCakeGame() {
   resumeBackgroundMusic();
 
   cakeFound = false;
+  cakeRevealed = false;
   moveDir = { x: 0, y: 0 };
-  confetti.length = 0;
-  sparkles.length = 0;
+  confetti = [];
+  sparkles = [];
 
   if (dpad) dpad.classList.remove('hidden');
   if (birthdayConsole) {
     birthdayConsole.classList.remove('active');
     birthdayConsole.setAttribute('aria-hidden', 'true');
   }
+  if (dialogueBox) dialogueBox.classList.remove('active');
   if (cakeHint) cakeHint.textContent = 'Sila jalan-jalan ikut je anak panah tu ye.';
 
-  resizeCanvas();
+  buildWorld();
 }
 
 // ---------- Controls ----------
@@ -650,7 +772,6 @@ function initCakeControls() {
   });
 }
 
-// Keyboard
 window.addEventListener('keydown', (e) => {
   if (!cakeGameActive || cakeFound) return;
   const map = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
@@ -666,7 +787,6 @@ window.addEventListener('keyup', () => {
   moveDir.y = 0;
 });
 
-// Resize listener
 window.addEventListener('resize', () => {
   if (!cakeGameActive) return;
   resizeCanvas();

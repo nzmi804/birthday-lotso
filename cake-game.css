@@ -117,6 +117,44 @@
   font-weight: 700;
 }
 
+/* NPC dialogue box */
+.dialogue-box {
+  display: none;
+  max-width: 90%;
+  margin: 0 auto 10px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #fff, #fff0f5);
+  border: 2px solid var(--pink-4);
+  border-radius: 18px;
+  box-shadow: 0 6px 18px rgba(91, 36, 54, 0.12);
+  text-align: center;
+  animation: popIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.dialogue-box.active {
+  display: block;
+}
+
+.dialogue-name {
+  font-family: 'Pacifico', cursive;
+  font-size: 1.1rem;
+  color: var(--strawberry);
+  margin-bottom: 4px;
+}
+
+.dialogue-text {
+  font-size: 0.95rem;
+  color: var(--dark);
+  font-weight: 600;
+  line-height: 1.45;
+  margin: 0;
+}
+
+@keyframes popIn {
+  0% { opacity: 0; transform: translateY(10px) scale(0.96); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 /* Hidden celebration placeholder (kept for JS compatibility) */
 .celebration {
   display: none;
