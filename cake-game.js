@@ -26,7 +26,7 @@ const imagesReady = Promise.all([new Promise(r => { lotsoImg.onload = r; lotsoIm
 let ROOM_W = 0, ROOM_H = 0, CORRIDOR_W = 0;
 let WORLD_W = 0, WORLD_H = 0, GAP = 0, WALL_THICK = 0;
 
-const lotso = { x: 0, y: 0, width: 52, height: 64, speed: 1.6, facing: 1, bob: 0, jumpY: 0 };
+const lotso = { x: 0, y: 0, width: 52, height: 64, speed: 2.0, facing: 1, bob: 0, jumpY: 0 };
 const camera = { x: 0, y: 0 };
 let moveDir = { x: 0, y: 0 };
 
@@ -61,13 +61,13 @@ function resizeCanvas() {
 }
 
 function buildWorld() {
-  ROOM_W = 230 * dpr;
-  ROOM_H = 330 * dpr;
-  CORRIDOR_W = 105 * dpr;
+  ROOM_W = 300 * dpr;
+  ROOM_H = 420 * dpr;
+  CORRIDOR_W = 120 * dpr;
   WORLD_W = ROOM_W * 2 + CORRIDOR_W;
-  GAP = 28 * dpr;
+  GAP = 32 * dpr;
   WALL_THICK = 12 * dpr;
-  WORLD_H = 3 * ROOM_H + 4 * GAP;
+  WORLD_H = 4 * ROOM_H + 5 * GAP;
 
   walls.length = 0; doors.length = 0; furniture.length = 0; npcs.length = 0;
   metFamily.clear();
@@ -76,41 +76,64 @@ function buildWorld() {
   cakeRevealed = false;
 
   const roomDefs = [
-    { key: 'bedroom', side: 'left', row: 0, bg: '#fff0f3', locked: false,
+    { key: 'masterBedroom', side: 'left', row: 0, bg: '#fff0f3', locked: false,
       npc: { name: 'Abi', color: '#4fc3f7', hair: '#3e2723', gender: 'man', dialogue: 'Yayang, nanti malam kita ada plan special. Jangan tanya apa-apa dulu! 😉' },
       furniture: [
-        { type: 'bed', x: 95*dpr, y: 60*dpr, w: 120*dpr, h: 150*dpr, color: '#ffb3c1' },
-        { type: 'wardrobe', x: 95*dpr, y: 230*dpr, w: 70*dpr, h: 90*dpr, color: '#a1887f' }
+        { type: 'wardrobe', x: 25*dpr, y: 35*dpr, w: 130*dpr, h: 75*dpr, color: '#a1887f' },
+        { type: 'bed', x: 140*dpr, y: 170*dpr, w: 150*dpr, h: 190*dpr, color: '#ffb3c1' },
+        { type: 'cabinet', x: 25*dpr, y: 300*dpr, w: 90*dpr, h: 60*dpr, color: '#bcaaa4' }
       ] },
-    { key: 'study', side: 'left', row: 1, bg: '#f3e5f5', locked: false,
-      npc: { name: 'Abang', color: '#81d4fa', hair: '#3e2723', gender: 'boy', dialogue: 'Shhh… jangan bising. Nanti Ummie tahu surprise kita! 🤫' },
+    { key: 'kidsBedroom', side: 'left', row: 1, bg: '#f3e5f5', locked: false,
+      npcs: [
+        { name: 'Abang', color: '#81d4fa', hair: '#3e2723', gender: 'boy', dialogue: 'Shhh… jangan bising. Nanti Ummie tahu surprise kita! 🤫' },
+        { name: 'Adik', color: '#ce93d8', hair: '#5e2a35', gender: 'girl', dialogue: 'Ummie nampak comel hari ni. Kita semua sayang Ummie! 💕' }
+      ],
       furniture: [
-        { type: 'bookshelf', x: 100*dpr, y: 40*dpr, w: 80*dpr, h: 170*dpr, color: '#8d6e63' },
-        { type: 'desk', x: 100*dpr, y: 250*dpr, w: 120*dpr, h: 55*dpr, color: '#bcaaa4' }
+        { type: 'bed-small', x: 150*dpr, y: 140*dpr, w: 140*dpr, h: 170*dpr, color: '#e1bee7' },
+        { type: 'desk', x: 25*dpr, y: 120*dpr, w: 110*dpr, h: 60*dpr, color: '#bcaaa4' },
+        { type: 'toybox', x: 25*dpr, y: 320*dpr, w: 85*dpr, h: 60*dpr, color: '#ffab91' }
       ] },
-    { key: 'living', side: 'left', row: 2, bg: '#e8f5e9', locked: false,
+    { key: 'livingRoom', side: 'left', row: 2, bg: '#e8f5e9', locked: false,
       npc: { name: 'Kakak', color: '#ff99aa', hair: '#5e2a35', gender: 'girl', dialogue: 'Hari ni Ummie pakai baju comel. Mesti ada sesuatu istimewa. 👗' },
       furniture: [
-        { type: 'sofa', x: 100*dpr, y: 60*dpr, w: 120*dpr, h: 70*dpr, color: '#ff8fab' },
-        { type: 'tv', x: 100*dpr, y: 230*dpr, w: 110*dpr, h: 70*dpr, color: '#5e2a35' }
+        { type: 'tv', x: 25*dpr, y: 40*dpr, w: 150*dpr, h: 60*dpr, color: '#5e2a35' },
+        { type: 'sofa', x: 25*dpr, y: 150*dpr, w: 190*dpr, h: 80*dpr, color: '#ff8fab' },
+        { type: 'table', x: 110*dpr, y: 320*dpr, w: 100*dpr, h: 60*dpr, color: '#d7ccc8' },
+        { type: 'plant', x: 235*dpr, y: 300*dpr, w: 45*dpr, h: 45*dpr, color: '#81c784' }
       ] },
-    { key: 'bathroom', side: 'right', row: 0, bg: '#e1f5fe', locked: false,
-      npc: { name: 'Adik', color: '#ce93d8', hair: '#5e2a35', gender: 'girl', dialogue: 'Ummie nampak comel hari ni. Kita semua sayang Ummie! 💕' },
-      furniture: [
-        { type: 'bathtub', x: 20*dpr, y: 50*dpr, w: 120*dpr, h: 150*dpr, color: '#b3e5fc' },
-        { type: 'sink', x: 20*dpr, y: 250*dpr, w: 60*dpr, h: 50*dpr, color: '#fff' }
-      ] },
-    { key: 'dining', side: 'right', row: 1, bg: '#fff8fa', locked: true,
+    { key: 'kitchen', side: 'left', row: 3, bg: '#fff3e0', locked: false,
       npc: null,
       furniture: [
-        { type: 'fridge', x: 20*dpr, y: 40*dpr, w: 55*dpr, h: 110*dpr, color: '#e3f2fd' },
-        { type: 'cabinet', x: 20*dpr, y: 180*dpr, w: 100*dpr, h: 55*dpr, color: '#a1887f' }
+        { type: 'fridge', x: 25*dpr, y: 40*dpr, w: 65*dpr, h: 130*dpr, color: '#e3f2fd' },
+        { type: 'cabinet', x: 25*dpr, y: 200*dpr, w: 210*dpr, h: 60*dpr, color: '#a1887f' },
+        { type: 'cabinet', x: 205*dpr, y: 40*dpr, w: 70*dpr, h: 170*dpr, color: '#a1887f' }
       ] },
-    { key: 'guest', side: 'right', row: 2, bg: '#fff3e0', locked: false,
+    { key: 'study', side: 'right', row: 0, bg: '#e1f5fe', locked: false,
       npc: null,
       furniture: [
-        { type: 'bed-small', x: 20*dpr, y: 55*dpr, w: 120*dpr, h: 140*dpr, color: '#e1bee7' },
-        { type: 'toybox', x: 20*dpr, y: 240*dpr, w: 70*dpr, h: 55*dpr, color: '#ffab91' }
+        { type: 'bookshelf', x: 30*dpr, y: 40*dpr, w: 75*dpr, h: 210*dpr, color: '#8d6e63' },
+        { type: 'desk', x: 125*dpr, y: 40*dpr, w: 150*dpr, h: 70*dpr, color: '#bcaaa4' },
+        { type: 'chair', x: 155*dpr, y: 125*dpr, w: 55*dpr, h: 55*dpr, color: '#8d6e63' }
+      ] },
+    { key: 'guestRoom', side: 'right', row: 1, bg: '#fff8fa', locked: false,
+      npc: null,
+      furniture: [
+        { type: 'bed-small', x: 30*dpr, y: 140*dpr, w: 140*dpr, h: 170*dpr, color: '#e1bee7' },
+        { type: 'wardrobe', x: 165*dpr, y: 40*dpr, w: 120*dpr, h: 75*dpr, color: '#a1887f' },
+        { type: 'cabinet', x: 165*dpr, y: 320*dpr, w: 100*dpr, h: 60*dpr, color: '#bcaaa4' }
+      ] },
+    { key: 'commonBathroom', side: 'right', row: 2, bg: '#e1f5fe', locked: false,
+      npc: null,
+      furniture: [
+        { type: 'bathtub', x: 30*dpr, y: 50*dpr, w: 150*dpr, h: 100*dpr, color: '#b3e5fc' },
+        { type: 'sink', x: 30*dpr, y: 220*dpr, w: 85*dpr, h: 60*dpr, color: '#fff' },
+        { type: 'cabinet', x: 200*dpr, y: 220*dpr, w: 80*dpr, h: 100*dpr, color: '#a1887f' }
+      ] },
+    { key: 'diningRoom', side: 'right', row: 3, bg: '#fff8fa', locked: true,
+      npc: null,
+      furniture: [
+        { type: 'fridge', x: 220*dpr, y: 130*dpr, w: 60*dpr, h: 120*dpr, color: '#e3f2fd' },
+        { type: 'cabinet', x: 30*dpr, y: 40*dpr, w: 240*dpr, h: 60*dpr, color: '#a1887f' }
       ] }
   ];
 
@@ -131,16 +154,18 @@ function buildWorld() {
     // Furniture
     def.furniture.forEach(f => furniture.push({ ...f, x: f.x + rx, y: f.y + ry }));
 
-    // NPC
-    if (def.npc) {
-      const npcX = rx + (def.side === 'left' ? ROOM_W * 0.42 : ROOM_W * 0.58);
-      const npcY = ry + ROOM_H * 0.62;
-      npcs.push({ ...def.npc, x: npcX, y: npcY });
-    }
+    // NPCs (single or multiple)
+    const roomNpcs = def.npcs || (def.npc ? [def.npc] : []);
+    roomNpcs.forEach((npc, i) => {
+      const baseX = def.side === 'left' ? ROOM_W * 0.38 : ROOM_W * 0.62;
+      const offsetX = (i % 2 === 0 ? -20 : 20) * dpr;
+      const offsetY = (i >= 2 ? 40 : (i === 1 ? 35 : 0)) * dpr;
+      npcs.push({ ...npc, x: rx + baseX + offsetX, y: ry + ROOM_H * 0.62 + offsetY });
+    });
 
-    // Dining table
-    if (def.key === 'dining') {
-      diningTable = { x: rx + ROOM_W - 190*dpr, y: ry + ROOM_H - 150*dpr, w: 150*dpr, h: 90*dpr };
+    // Dining table + chairs
+    if (def.key === 'diningRoom') {
+      diningTable = { x: rx + 75*dpr, y: ry + 200*dpr, w: 150*dpr, h: 90*dpr };
       furniture.push({ type: 'table', ...diningTable, color: '#d7ccc8' });
       furniture.push({ type: 'chair', x: diningTable.x - 35*dpr, y: diningTable.y + 20*dpr, w: 30*dpr, h: 35*dpr, color: '#8d6e63' });
       furniture.push({ type: 'chair', x: diningTable.x + diningTable.w + 5*dpr, y: diningTable.y + 20*dpr, w: 30*dpr, h: 35*dpr, color: '#8d6e63' });
@@ -148,6 +173,23 @@ function buildWorld() {
 
     if (def.locked) diningDoor = doorInfo;
   });
+
+  // Master bedroom en-suite bathroom (inside the top-right corner)
+  const masterRx = 0;
+  const masterRy = GAP;
+  const bathW = 98 * dpr;
+  const bathH = 130 * dpr;
+  const bathX = masterRx + ROOM_W - WALL_THICK - bathW;
+  const bathY = masterRy + WALL_THICK;
+  const doorTop = bathY + bathH * 0.35;
+  const doorBottom = bathY + bathH * 0.65;
+  walls.push({ x: bathX, y: bathY + bathH, w: bathW, h: WALL_THICK }); // bottom wall
+  walls.push({ x: bathX, y: bathY, w: WALL_THICK, h: doorTop - bathY }); // left wall top
+  walls.push({ x: bathX, y: doorBottom, w: WALL_THICK, h: bathY + bathH - doorBottom }); // left wall bottom
+  furniture.push(
+    { type: 'bathtub', x: bathX + 10*dpr, y: bathY + 10*dpr, w: 80*dpr, h: 60*dpr, color: '#b3e5fc' },
+    { type: 'sink', x: bathX + 10*dpr, y: bathY + 85*dpr, w: 45*dpr, h: 30*dpr, color: '#fff' }
+  );
 
   // Corridor caps
   const cx = ROOM_W;
@@ -575,8 +617,8 @@ function drawRoomLabels() {
   ctx.font = `bold ${14*dpr}px Quicksand, sans-serif`;
   ctx.fillStyle = 'rgba(93,64,55,0.22)';
   const labels = [
-    { side:'left', row:0, text:'Bilik Tidur' }, { side:'left', row:1, text:'Bilik Study' }, { side:'left', row:2, text:'Bilik Tamu' },
-    { side:'right', row:0, text:'Bilik Mandi' }, { side:'right', row:1, text:'Bilik Makan' }, { side:'right', row:2, text:'Bilik Tetamu' }
+    { side:'left', row:0, text:'Bilik Tidur Utama' }, { side:'left', row:1, text:'Bilik Kanak-Kanak' }, { side:'left', row:2, text:'Bilik Tamu' }, { side:'left', row:3, text:'Dapur' },
+    { side:'right', row:0, text:'Bilik Study' }, { side:'right', row:1, text:'Bilik Tetamu' }, { side:'right', row:2, text:'Bilik Mandi' }, { side:'right', row:3, text:'Bilik Makan' }
   ];
   labels.forEach(l => {
     const rx = l.side === 'left' ? 0 : ROOM_W + CORRIDOR_W;
