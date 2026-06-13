@@ -16,7 +16,7 @@ let spawnInterval = null;
 let lastFrameTime = 0;
 let gameActive = false;
 let score = 0;
-const targetScore = 20;
+const targetScore = 40;
 
 // Trick button runs away from cursor / finger
 if (trickBtn) {
@@ -85,7 +85,7 @@ function resetLotsoPosition() {
 function spawnFallingItem() {
   if (!gameActive || score >= targetScore) return;
 
-  const isBomb = Math.random() < 0.15;
+  const isBomb = Math.random() < (1 / 3);
   const el = document.createElement('div');
   el.className = 'falling-item' + (isBomb ? ' bomb' : '');
   el.textContent = isBomb ? '💣' : heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
