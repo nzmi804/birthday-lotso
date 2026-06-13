@@ -80,7 +80,7 @@ function buildWorld() {
 
   const roomDefs = [
     { key: 'masterBedroom', side: 'left', row: 0, bg: '#fff0f3', locked: false,
-      npc: { name: 'Abi', color: '#4fc3f7', hair: '#3e2723', gender: 'man', dialogue: 'Yayang, nanti malam kita ada plan special. Jangan tanya apa-apa dulu! 😉' },
+      npc: { name: 'Ayah', color: '#2196f3', hair: '#3e2723', gender: 'man', dialogue: 'Yayang, nanti malam kita ada plan special. Jangan tanya apa-apa dulu! 😉' },
       furniture: [
         { type: 'wardrobe', x: 12*dpr, y: 12*dpr, w: 110*dpr, h: 130*dpr, color: '#a1887f' },
         { type: 'bed', x: 12*dpr, y: 260*dpr, w: 170*dpr, h: 140*dpr, color: '#ffb3c1' },
@@ -88,8 +88,8 @@ function buildWorld() {
       ] },
     { key: 'kidsBedroom', side: 'left', row: 1, bg: '#f3e5f5', locked: false,
       npcs: [
-        { name: 'Abang', color: '#81d4fa', hair: '#3e2723', gender: 'boy', dialogue: 'Shhh… jangan bising. Nanti Ummie tahu surprise kita! 🤫' },
-        { name: 'Adik', color: '#ce93d8', hair: '#5e2a35', gender: 'girl', dialogue: 'Ummie nampak comel hari ni. Kita semua sayang Ummie! 💕' }
+        { name: 'Adik Lelaki', color: '#9c27b0', hair: '#3e2723', gender: 'boy', dialogue: 'Shhh… jangan bising. Nanti Ummie tahu surprise kita! 🤫' },
+        { name: 'Adik Perempuan', color: '#ffab91', hair: '#5e2a35', gender: 'girl', dialogue: 'Ummie nampak comel hari ni. Kita semua sayang Ummie! 💕' }
       ],
       furniture: [
         { type: 'bed-small', x: 12*dpr, y: 270*dpr, w: 140*dpr, h: 130*dpr, color: '#e1bee7' },
@@ -98,7 +98,7 @@ function buildWorld() {
         { type: 'bookshelf', x: 210*dpr, y: 300*dpr, w: 78*dpr, h: 100*dpr, color: '#8d6e63' }
       ] },
     { key: 'livingRoom', side: 'left', row: 2, bg: '#e8f5e9', locked: false,
-      npc: { name: 'Kakak', color: '#ff99aa', hair: '#5e2a35', gender: 'girl', dialogue: 'Hari ni Ummie pakai baju comel. Mesti ada sesuatu istimewa. 👗' },
+      npc: { name: 'Kakak', color: '#f44336', hair: '#5e2a35', gender: 'girl', dialogue: 'Hari ni Ummie pakai baju comel. Mesti ada sesuatu istimewa. 👗' },
       furniture: [
         { type: 'tv', x: 12*dpr, y: 30*dpr, w: 140*dpr, h: 60*dpr, color: '#5e2a35' },
         { type: 'sofa', x: 12*dpr, y: 290*dpr, w: 180*dpr, h: 80*dpr, color: '#ff8fab' },
@@ -586,50 +586,112 @@ function wrapText(text, maxWidth) {
   return lines.length ? lines : [text];
 }
 
-function drawPerson(x, y, bodyColor, hairColor, gender) {
+function hexToRgb(hex) {
+  const m = hex.match(/^#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$/i);
+  if (!m) return { r: 255, g: 143, b: 171 };
+  return {
+    r: parseInt(m[1], 16),
+    g: parseInt(m[2], 16),
+    b: parseInt(m[3], 16)
+  };
+}
+
+function rgbToHex(r, g, b) {
+  const c = [r, g, b].map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0'));
+  return '#' + c.join('');
+}
+
+function lighten(hex, amount) {
+  const c = hexToRgb(hex);
+  return rgbToHex(c.r + amount, c.g + amount, c.b + amount);
+}
+
+function darken(hex, amount) {
+  const c = hexToRgb(hex);
+  return rgbToHex(c.r - amount, c.g - amount, c.b - amount);
+}
+
+function drawMiniLotso(x, y, color, gender) {
   const s = dpr;
+  const w = 48 * s;
+  const h = 56 * s;
+  const light = lighten(color, 70);
+  const lighter = lighten(color, 110);
+  const dark = darken(color, 70);
   const isFemale = gender === 'girl' || gender === 'woman';
 
+  // shadow
   ctx.fillStyle = 'rgba(0,0,0,0.15)';
-  ctx.beginPath(); ctx.ellipse(x, y + 30*s, 15*s, 5*s, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x, y + h * 0.42, w * 0.35, 5 * s, 0, 0, Math.PI * 2); ctx.fill();
 
-  ctx.fillStyle = bodyColor;
+  // ears
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.arc(x - w * 0.32, y - h * 0.35, w * 0.20, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x + w * 0.32, y - h * 0.35, w * 0.20, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = light;
+  ctx.beginPath(); ctx.arc(x - w * 0.32, y - h * 0.35, w * 0.11, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x + w * 0.32, y - h * 0.35, w * 0.11, 0, Math.PI * 2); ctx.fill();
+
+  // body
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.ellipse(x, y + h * 0.12, w * 0.42, h * 0.40, 0, 0, Math.PI * 2); ctx.fill();
+  // belly
+  ctx.fillStyle = lighter;
+  ctx.beginPath(); ctx.ellipse(x, y + h * 0.14, w * 0.22, h * 0.20, 0, 0, Math.PI * 2); ctx.fill();
+
+  // arms
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.ellipse(x - w * 0.35, y + h * 0.05, w * 0.10, h * 0.18, 0.4, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x + w * 0.35, y + h * 0.05, w * 0.10, h * 0.18, -0.4, 0, Math.PI * 2); ctx.fill();
+
+  // feet
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.ellipse(x - w * 0.18, y + h * 0.44, w * 0.14, h * 0.08, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x + w * 0.18, y + h * 0.44, w * 0.14, h * 0.08, 0, 0, Math.PI * 2); ctx.fill();
+
+  // head
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.ellipse(x, y - h * 0.22, w * 0.48, h * 0.35, 0, 0, Math.PI * 2); ctx.fill();
+
+  // snout
+  ctx.fillStyle = lighter;
+  ctx.beginPath(); ctx.ellipse(x, y - h * 0.12, w * 0.22, h * 0.14, 0, 0, Math.PI * 2); ctx.fill();
+
+  // eyes
+  ctx.fillStyle = '#2a1218';
+  ctx.beginPath(); ctx.ellipse(x - w * 0.10, y - h * 0.25, w * 0.055, h * 0.075, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x + w * 0.10, y - h * 0.25, w * 0.055, h * 0.075, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(x - w * 0.08, y - h * 0.28, w * 0.025, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x + w * 0.10, y - h * 0.28, w * 0.025, 0, Math.PI * 2); ctx.fill();
+
+  // nose
+  ctx.fillStyle = '#5e2a35';
+  ctx.beginPath(); ctx.ellipse(x, y - h * 0.16, w * 0.075, h * 0.05, 0, 0, Math.PI * 2); ctx.fill();
+
+  // mouth
+  ctx.strokeStyle = '#5e2a35'; ctx.lineWidth = 2.5 * s; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.arc(x, y - h * 0.10, w * 0.09, 0.2, Math.PI - 0.2); ctx.stroke();
+
+  // blush
+  ctx.fillStyle = '#ff4d6d'; ctx.globalAlpha = 0.2;
+  ctx.beginPath(); ctx.ellipse(x - w * 0.30, y - h * 0.15, w * 0.08, h * 0.05, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x + w * 0.30, y - h * 0.15, w * 0.08, h * 0.05, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // bow for girls
   if (isFemale) {
-    ctx.beginPath();
-    ctx.moveTo(x - 14*s, y + 8*s); ctx.lineTo(x + 14*s, y + 8*s);
-    ctx.lineTo(x + 18*s, y + 32*s); ctx.lineTo(x - 18*s, y + 32*s);
-    ctx.closePath(); ctx.fill();
-  } else {
-    ctx.beginPath(); ctx.ellipse(x, y + 8*s, 15*s, 19*s, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#5e2a35';
-    ctx.fillRect(x - 12*s, y + 20*s, 10*s, 14*s);
-    ctx.fillRect(x + 2*s, y + 20*s, 10*s, 14*s);
+    ctx.fillStyle = '#ff4d6d';
+    const bx = x + w * 0.30, by = y - h * 0.48;
+    ctx.beginPath(); ctx.arc(bx - 4 * s, by, 5 * s, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(bx + 4 * s, by, 5 * s, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#ffd700';
+    ctx.beginPath(); ctx.arc(bx, by, 3 * s, 0, Math.PI * 2); ctx.fill();
   }
+}
 
-  ctx.fillStyle = '#ffe0bd';
-  ctx.beginPath(); ctx.arc(x, y - 13*s, 12*s, 0, Math.PI*2); ctx.fill();
-
-  ctx.fillStyle = hairColor;
-  if (isFemale) {
-    ctx.beginPath();
-    ctx.arc(x, y - 16*s, 13*s, Math.PI, 0);
-    ctx.lineTo(x + 13*s, y + 5*s); ctx.lineTo(x - 13*s, y + 5*s);
-    ctx.closePath(); ctx.fill();
-    if (gender === 'girl') {
-      ctx.fillStyle = '#ff4d6d';
-      ctx.beginPath(); ctx.arc(x - 10*s, y - 22*s, 4*s, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(x - 16*s, y - 22*s, 4*s, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#ffd700';
-      ctx.beginPath(); ctx.arc(x - 13*s, y - 22*s, 2*s, 0, Math.PI*2); ctx.fill();
-    }
-  } else {
-    ctx.beginPath(); ctx.arc(x, y - 16*s, 13*s, Math.PI, 0); ctx.fill();
-  }
-
-  ctx.fillStyle = '#3e2723';
-  ctx.beginPath(); ctx.arc(x - 4*s, y - 13*s, 2*s, 0, Math.PI*2); ctx.arc(x + 4*s, y - 13*s, 2*s, 0, Math.PI*2); ctx.fill();
-  ctx.strokeStyle = '#3e2723'; ctx.lineWidth = 1.5*s;
-  ctx.beginPath(); ctx.arc(x, y - 10*s, 4*s, 0.2, Math.PI - 0.2); ctx.stroke();
+function drawPerson(x, y, bodyColor, hairColor, gender) {
+  drawMiniLotso(x, y, bodyColor, gender);
 }
 
 function drawLotso() {
