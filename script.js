@@ -79,6 +79,21 @@ function initMusicState() {
   enableAutoMusic();
 }
 
+/* ---------- Custom video placeholder (Lotso + play button) ---------- */
+function initVideoPlaceholder() {
+  const placeholder = document.getElementById('videoPlaceholder');
+  const playBtn = document.getElementById('playVideoBtn');
+  const video = document.getElementById('birthdayVideo');
+  if (!placeholder || !playBtn || !video) return;
+
+  playBtn.addEventListener('click', () => {
+    placeholder.style.display = 'none';
+    video.style.display = 'block';
+    video.setAttribute('controls', 'true');
+    video.play().catch(() => {});
+  });
+}
+
 /* ---------- Pause music while watching the special video ---------- */
 function initVideoMusic() {
   const video = document.getElementById('birthdayVideo');
@@ -297,5 +312,6 @@ window.addEventListener('DOMContentLoaded', () => {
   createParticle();
   initReasons();
   initMusicState();
+  initVideoPlaceholder();
   initVideoMusic();
 });
