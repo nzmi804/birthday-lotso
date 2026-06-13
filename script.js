@@ -81,12 +81,13 @@ function initMusicState() {
 
 /* ---------- Custom video placeholder (Lotso + play button) ---------- */
 function initVideoPlaceholder() {
+  const lotsoBtn = document.getElementById('lotsoVideoBtn');
   const placeholder = document.getElementById('videoPlaceholder');
-  const playBtn = document.getElementById('playVideoBtn');
   const video = document.getElementById('birthdayVideo');
-  if (!placeholder || !playBtn || !video) return;
+  if (!lotsoBtn || !placeholder || !video) return;
 
-  playBtn.addEventListener('click', () => {
+  lotsoBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
     placeholder.style.display = 'none';
     video.style.display = 'block';
     video.setAttribute('controls', 'true');
