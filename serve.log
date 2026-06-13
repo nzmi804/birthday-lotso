@@ -1,0 +1,7 @@
+ INFO  Accepting connections at http://localhost:8765
+ HTTP  13/06/2026 3:06:14 pm ::1 GET /cake.html
+ HTTP  13/06/2026 3:06:14 pm ::1 Returned 301 in 11 ms
+ HTTP  13/06/2026 3:06:14 pm ::1 GET /cake-game.css
+ HTTP  13/06/2026 3:06:14 pm ::1 Returned 200 in 4 ms
+ HTTP  13/06/2026 3:06:14 pm ::1 GET /cake-game.js
+ HTTP  13/06/2026 3:06:14 pm ::1 Returned 200 in 1 ms

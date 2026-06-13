@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ms" translate="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#ff8fab">
+  <meta name="google" content="notranslate">
+  <title>Cari Kek | Happy Birthday Sayang!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=17">
+  <link rel="stylesheet" href="cake-game.css?v=17">
+</head>
+<body class="notranslate">
+
+  <div class="bg-particles" id="bgParticles" aria-hidden="true"></div>
+
+  <div class="progress" id="progress" aria-hidden="true">
+    <a href="index.html" class="dot"></a>
+    <a href="gallery.html" class="dot"></a>
+    <a href="reasons.html" class="dot"></a>
+    <a href="game.html" class="dot"></a>
+    <a href="video.html" class="dot"></a>
+    <a href="message.html" class="dot"></a>
+    <a href="cake.html" class="dot active"></a>
+  </div>
+
+  <!-- STEP 7: CAKE HUNT FINALE -->
+  <section class="slide active" id="slide-cake" aria-label="Cake hunt finale">
+    <div class="card cake-card">
+      <h2 class="section-title">Bantu Lotso Cari Kek 🎂</h2>
+      <p class="section-subtitle">Gerakkan Lotso pergi dekat tempat yang nampak suram tu…</p>
+
+      <div class="room" id="room">
+        <!-- Beach scene -->
+        <div class="room-wall"></div>
+        <div class="sun">☀️</div>
+        <div class="ocean">
+          <div class="wave wave1"></div>
+          <div class="wave wave2"></div>
+          <div class="wave wave3"></div>
+        </div>
+        <div class="room-floor"></div>
+
+        <!-- Beach items -->
+        <div class="furniture palm">🌴</div>
+        <div class="furniture umbrella">⛱️</div>
+        <div class="furniture ball">🏖️</div>
+        <div class="furniture shell">🐚</div>
+        <div class="furniture starfish">🌟</div>
+
+        <!-- Hidden cake -->
+        <div class="cake-spot" id="cakeSpot">
+          <div class="cake">🎂</div>
+          <div class="cake-glow"></div>
+        </div>
+
+        <!-- Lotso with direction arrow -->
+        <div class="lotso lotso-room" id="lotsoRoom" aria-hidden="true">
+          <div class="lotso-arrow" id="lotsoArrow">➤</div>
+          <img src="assets/lotso.svg" alt="Lotso strawberry bear" draggable="false">
+        </div>
+
+        <!-- Darkness overlay (flashlight effect) -->
+        <div class="room-overlay" id="roomOverlay"></div>
+
+        <!-- Friends pop in after cake found -->
+        <div class="friends" id="friends" aria-hidden="true"></div>
+
+        <!-- Birthday party decorations (show on found) -->
+        <div class="party-decor" id="partyDecor" aria-hidden="true">
+          <div class="party-banner">🎉 Happy Birthday 🎉</div>
+          <div class="party-balloon balloon-left">🎈</div>
+          <div class="party-balloon balloon-right">🎈</div>
+          <div class="party-streamer streamer-left"></div>
+          <div class="party-streamer streamer-right"></div>
+          <div class="party-sparkles" id="partySparkles"></div>
+        </div>
+      </div>
+
+      <!-- D-pad -->
+      <div class="dpad" id="dpad">
+        <button class="dpad-btn dpad-up" data-dir="up" aria-label="Atas">▲</button>
+        <div class="dpad-row">
+          <button class="dpad-btn dpad-left" data-dir="left" aria-label="Kiri">◀</button>
+          <button class="dpad-btn dpad-down" data-dir="down" aria-label="Bawah">▼</button>
+          <button class="dpad-btn dpad-right" data-dir="right" aria-label="Kanan">▶</button>
+        </div>
+      </div>
+
+      <!-- Birthday wish console (replaces D-pad after cake found) -->
+      <div class="birthday-console" id="birthdayConsole" aria-hidden="true">
+        <div class="birthday-console-title">Happy Birthday Sayang! 🎂</div>
+        <p class="birthday-console-text">
+          Semoga hari ini penuh senyuman,<br>kebahagiaan, dan cinta yang tak terhingga. 💕
+        </p>
+        <button class="btn btn-primary" onclick="restartCakeGame()">Main Lagi 🔄</button>
+      </div>
+
+      <p class="cake-hint" id="cakeHint">Sila jalan-jalan ikut je anak panah tu ye.</p>
+
+      <!-- Hidden celebration placeholder (kept for JS compatibility) -->
+      <div class="celebration" id="celebration" aria-hidden="true" style="display:none;"></div>
+    </div>
+  </section>
+
+  <!-- Birthday song audio (vocal choir) -->
+  <audio id="birthdaySong" preload="auto" aria-hidden="true">
+    <source src="https://media.vole.wtf/happy-birthday/choir.mp3" type="audio/mpeg">
+  </audio>
+
+  <button class="music-toggle muted" id="musicToggle" onclick="toggleMusic()" aria-label="Play music">
+    🔇
+  </button>
+  <audio id="bgMusic" loop preload="none">
+    <source src="https://www.chosic.com/wp-content/uploads/2022/10/There-is-Romance(chosic.com).mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="music-credit" title="Music credit">
+    🎵 There Is Romance by Kevin MacLeod
+  </div>
+
+  <script src="script.js?v=17"></script>
+  <script src="cake-game.js?v=17"></script>
+</body>
+</html>

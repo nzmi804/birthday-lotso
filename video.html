@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ms" translate="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#ff8fab">
+  <meta name="google" content="notranslate">
+  <title>Video Khas | Happy Birthday Sayang!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=12">
+</head>
+<body class="notranslate">
+
+  <div class="bg-particles" id="bgParticles" aria-hidden="true"></div>
+
+  <div class="progress" id="progress" aria-hidden="true">
+    <a href="index.html" class="dot"></a>
+    <a href="gallery.html" class="dot"></a>
+    <a href="reasons.html" class="dot"></a>
+    <a href="game.html" class="dot"></a>
+    <a href="video.html" class="dot active"></a>
+    <a href="message.html" class="dot"></a>
+    <a href="cake.html" class="dot"></a>
+  </div>
+
+  <!-- STEP 5: VIDEO -->
+  <section class="slide active" id="slide-video" aria-label="Video">
+    <div class="card video-card">
+      <h2 class="section-title">Video Khas untuk Sayang 🎬</h2>
+      <div class="video-frame">
+        <video id="birthdayVideo" controls playsinline poster="assets/placeholder-photo.svg">
+          <source src="https://videos.pexels.com/video-files/3129671/3129671-sd_640_360_30fps.mp4" type="video/mp4">
+          Browser awak tidak menyokong video.
+        </video>
+        <div class="video-note">
+          💡 <strong>Tips:</strong> Tukar video ini dengan video awak sendiri — upload ke YouTube (Unlisted) atau letak fail <code>video.mp4</code> dalam folder ini.
+        </div>
+      </div>
+      <a href="message.html" class="btn btn-primary">Seterusnya: Ucapan Abi 💌</a>
+    </div>
+  </section>
+
+  <button class="music-toggle muted" id="musicToggle" onclick="toggleMusic()" aria-label="Play music">
+    🔇
+  </button>
+  <audio id="bgMusic" loop preload="none">
+    <source src="https://www.chosic.com/wp-content/uploads/2022/10/There-is-Romance(chosic.com).mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="music-credit" title="Music credit">
+    🎵 There Is Romance by Kevin MacLeod
+  </div>
+
+  <script src="script.js?v=12"></script>
+</body>
+</html>
