@@ -10,7 +10,7 @@ const music = document.getElementById('bgMusic');
 const musicToggle = document.getElementById('musicToggle');
 
 function startBackgroundMusic() {
-  if (musicStarted || !music) return;
+  if (musicStarted || !music || window.birthdaySongPlaying) return;
   music.volume = 0.35;
   music.play().then(() => {
     musicStarted = true;
@@ -49,12 +49,51 @@ function updateMusicToggle(playing) {
   }
 }
 
+function enableAutoMusic() {
+  if (!music || musicStarted) return;
+  const startOnce = () => startBackgroundMusic();
+  window.addEventListener('click', startOnce, { once: true });
+  window.addEventListener('touchstart', startOnce, { once: true });
+  window.addEventListener('keydown', startOnce, { once: true });
+}
+
 function initMusicState() {
-  if (sessionStorage.getItem('musicPlaying') === 'true' && music && !musicStarted) {
-    startBackgroundMusic();
+  window.birthdaySongPlaying = false;
+  if (sessionStorage.getItem('musicPlaying') === 'true' && music) {
+    music.volume = 0.35;
+    music.play().then(() => {
+      musicStarted = true;
+      updateMusicToggle(true);
+    }).catch(() => updateMusicToggle(false));
   } else {
     updateMusicToggle(false);
   }
+  enableAutoMusic();
+}
+
+/* ---------- Pause music while watching the special video ---------- */
+function initVideoMusic() {
+  const video = document.getElementById('birthdayVideo');
+  if (!video || !music) return;
+  let pausedByVideo = false;
+
+  video.addEventListener('play', () => {
+    if (!music.paused) {
+      music.pause();
+      pausedByVideo = true;
+      updateMusicToggle(false);
+    }
+  });
+
+  const maybeResume = () => {
+    if (pausedByVideo && sessionStorage.getItem('musicPlaying') === 'true') {
+      music.play().then(() => updateMusicToggle(true)).catch(() => {});
+    }
+    pausedByVideo = false;
+  };
+
+  video.addEventListener('pause', maybeResume);
+  video.addEventListener('ended', maybeResume);
 }
 
 /* ---------- Background particles ---------- */
@@ -250,4 +289,5 @@ window.addEventListener('DOMContentLoaded', () => {
   createParticle();
   initReasons();
   initMusicState();
+  initVideoMusic();
 });

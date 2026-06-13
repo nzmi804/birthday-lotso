@@ -8,6 +8,7 @@ const cakeHint = document.getElementById('cakeHint');
 const dpad = document.getElementById('dpad');
 const birthdayConsole = document.getElementById('birthdayConsole');
 const birthdaySong = document.getElementById('birthdaySong');
+if (birthdaySong) birthdaySong.onended = resumeBackgroundMusic;
 
 let ctx = null;
 let dpr = 1;
@@ -709,6 +710,7 @@ function foundCake() {
   spawnConfetti(80); spawnSparkles(30);
   wasMusicPlaying = typeof musicStarted !== 'undefined' && musicStarted && !music.paused;
   if (wasMusicPlaying) music.pause();
+  window.birthdaySongPlaying = true;
   playHappyBirthdaySong();
 }
 
@@ -739,6 +741,7 @@ function onYouTubeIframeAPIReady() {
 }
 
 function resumeBackgroundMusic() {
+  window.birthdaySongPlaying = false;
   if (wasMusicPlaying && typeof musicStarted !== 'undefined' && musicStarted) music.play().catch(()=>{});
 }
 
