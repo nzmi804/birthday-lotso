@@ -662,7 +662,10 @@ function foundCake() {
 }
 
 function playHappyBirthdaySong() {
-  if (youtubeReady && youtubePlayer && youtubePlayer.playVideo) {
+  // Local file:// pages cannot talk to the YouTube iframe (origin null),
+  // so use the direct MP3 fallback there and whenever YouTube isn't ready.
+  const isLocalFile = location.protocol === 'file:';
+  if (!isLocalFile && youtubeReady && youtubePlayer && youtubePlayer.playVideo) {
     youtubePlayer.seekTo(0);
     youtubePlayer.playVideo();
   } else if (birthdaySong) {

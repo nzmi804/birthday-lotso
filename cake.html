@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=25">
-  <link rel="stylesheet" href="cake-game.css?v=25">
+  <link rel="stylesheet" href="style.css?v=26">
+  <link rel="stylesheet" href="cake-game.css?v=26">
 </head>
 <body class="notranslate">
 
@@ -68,12 +68,12 @@
     </div>
   </section>
 
-  <!-- Hidden YouTube audio player -->
-  <div id="youtubePlayer" style="display:none;" aria-hidden="true"></div>
+  <!-- Hidden YouTube audio player (kept off-screen, not display:none so iframe isn't throttled) -->
+  <div id="youtubePlayer" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;" aria-hidden="true"></div>
 
   <!-- Fallback birthday song audio -->
   <audio id="birthdaySong" preload="auto" aria-hidden="true">
-    <source src="https://media.vole.wtf/happy-birthday/choir.mp3" type="audio/mpeg">
+    <source src="https://cdn.pixabay.com/audio/2022/02/21/audio_4e7e25d719.mp3" type="audio/mpeg">
   </audio>
 
   <button class="music-toggle muted" id="musicToggle" onclick="toggleMusic()" aria-label="Play music">
@@ -87,8 +87,8 @@
     🎵 There Is Romance by Kevin MacLeod
   </div>
 
-  <script src="script.js?v=25"></script>
-  <script src="cake-game.js?v=25"></script>
+  <script src="script.js?v=26"></script>
+  <script src="cake-game.js?v=26"></script>
   <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
