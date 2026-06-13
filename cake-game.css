@@ -57,8 +57,6 @@
   border-radius: 14px;
   background: linear-gradient(135deg, var(--pink-5), var(--strawberry));
   color: #fff;
-  font-size: 1.2rem;
-  font-weight: 700;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(91, 36, 54, 0.2);
   transition: transform 0.1s ease, filter 0.1s ease;
@@ -66,6 +64,15 @@
   align-items: center;
   justify-content: center;
   -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.dpad-btn svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+  pointer-events: none;
 }
 
 .dpad-btn:active {
@@ -173,6 +180,10 @@
   .dpad-btn {
     width: 44px;
     height: 44px;
-    font-size: 1.05rem;
+  }
+
+  .dpad-btn svg {
+    width: 22px;
+    height: 22px;
   }
 }
