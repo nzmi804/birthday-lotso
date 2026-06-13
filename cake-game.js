@@ -77,25 +77,25 @@ function buildWorld() {
 
   const roomDefs = [
     { key: 'bedroom', side: 'left', row: 0, bg: '#fff0f3', locked: false,
-      npc: { name: 'Abi', color: '#4fc3f7', hair: '#3e2723', gender: 'man', dialogue: 'Sayang, nanti malam kita ada plan special. Jangan tanya apa-apa dulu! 😉' },
+      npc: { name: 'Abi', color: '#4fc3f7', hair: '#3e2723', gender: 'man', dialogue: 'Yayang, nanti malam kita ada plan special. Jangan tanya apa-apa dulu! 😉' },
       furniture: [
         { type: 'bed', x: 20*dpr, y: 55*dpr, w: 130*dpr, h: 160*dpr, color: '#ffb3c1' },
         { type: 'wardrobe', x: 20*dpr, y: 250*dpr, w: 70*dpr, h: 110*dpr, color: '#a1887f' }
       ] },
     { key: 'study', side: 'left', row: 1, bg: '#f3e5f5', locked: false,
-      npc: { name: 'Abang', color: '#81d4fa', hair: '#3e2723', gender: 'boy', dialogue: 'Shhh… jangan bising. Nanti Mama tahu surprise kita! 🤫' },
+      npc: { name: 'Abang', color: '#81d4fa', hair: '#3e2723', gender: 'boy', dialogue: 'Shhh… jangan bising. Nanti Ummie tahu surprise kita! 🤫' },
       furniture: [
         { type: 'bookshelf', x: 20*dpr, y: 40*dpr, w: 65*dpr, h: 170*dpr, color: '#8d6e63' },
         { type: 'desk', x: 20*dpr, y: 250*dpr, w: 120*dpr, h: 55*dpr, color: '#bcaaa4' }
       ] },
     { key: 'living', side: 'left', row: 2, bg: '#e8f5e9', locked: false,
-      npc: { name: 'Kakak', color: '#ff99aa', hair: '#5e2a35', gender: 'girl', dialogue: 'Hari ni Mama pakai baju comel. Mesti ada sesuatu istimewa. 👗' },
+      npc: { name: 'Kakak', color: '#ff99aa', hair: '#5e2a35', gender: 'girl', dialogue: 'Hari ni Ummie pakai baju comel. Mesti ada sesuatu istimewa. 👗' },
       furniture: [
         { type: 'sofa', x: 20*dpr, y: 60*dpr, w: 140*dpr, h: 70*dpr, color: '#ff8fab' },
         { type: 'tv', x: 30*dpr, y: 230*dpr, w: 110*dpr, h: 70*dpr, color: '#5e2a35' }
       ] },
     { key: 'bathroom', side: 'right', row: 0, bg: '#e1f5fe', locked: false,
-      npc: { name: 'Adik', color: '#ce93d8', hair: '#5e2a35', gender: 'girl', dialogue: 'Mama nampak comel hari ni. Kita semua sayang Mama! 💕' },
+      npc: { name: 'Adik', color: '#ce93d8', hair: '#5e2a35', gender: 'girl', dialogue: 'Ummie nampak comel hari ni. Kita semua sayang Ummie! 💕' },
       furniture: [
         { type: 'bathtub', x: ROOM_W - 160*dpr, y: 50*dpr, w: 120*dpr, h: 150*dpr, color: '#b3e5fc' },
         { type: 'sink', x: ROOM_W - 90*dpr, y: 250*dpr, w: 60*dpr, h: 50*dpr, color: '#fff' }
