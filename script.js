@@ -159,14 +159,17 @@ function initReasons() {
   grid.innerHTML = '';
   reasonsData.forEach((text) => {
     const item = document.createElement('div');
-    item.className = 'reason-item';
+    item.className = 'reason-item revealed';
     item.innerHTML = `
       <div class="reason-heart">❤️</div>
       <div class="reason-text">${text}</div>
     `;
-    item.addEventListener('click', () => revealReason(item));
     grid.appendChild(item);
   });
+
+  revealedReasons = reasonsData.length;
+  const nextBtn = document.getElementById('reasonsNextBtn');
+  if (nextBtn) nextBtn.classList.remove('hidden');
 }
 
 function revealReason(item) {
