@@ -41,6 +41,8 @@ let diningTable = null;
 let cakeRevealed = false;
 let confetti = [], sparkles = [];
 let shake = 0;
+let celebrating = false;
+let celebrationTargets = [];
 
 function resizeCanvas() {
   if (!room || !canvas) return;
@@ -68,36 +70,42 @@ function buildWorld() {
 
   const roomDefs = [
     // Left column
-    { key: 'bedroom', side: 'left', row: 0, name: 'Bilik Tidur', bg: '#fff0f3', npc: { name: 'Awak', color: '#ff4d6d', hair: '#5e2a35', dialogue: 'Lotso, kek birthday sayang ada dalam Bilik Makan. Cari pintu kanan bawah ye! 💕' },
+    { key: 'bedroom', side: 'left', row: 0, name: 'Bilik Tidur', bg: '#fff0f3',
+      npc: { name: 'Papa', color: '#4fc3f7', hair: '#3e2723', gender: 'man', dialogue: 'Shhh… jangan bising. Nanti malam ada movie night special. 🎬' },
       furniture: [
-        { type: 'bed', x: 25*dpr, y: 50*dpr, w: 140*dpr, h: 170*dpr, color: '#ffb3c1' },
-        { type: 'wardrobe', x: 25*dpr, y: 250*dpr, w: 80*dpr, h: 120*dpr, color: '#a1887f' }
+        { type: 'bed', x: 20*dpr, y: 55*dpr, w: 130*dpr, h: 160*dpr, color: '#ffb3c1' },
+        { type: 'wardrobe', x: 20*dpr, y: 250*dpr, w: 70*dpr, h: 110*dpr, color: '#a1887f' }
       ] },
-    { key: 'study', side: 'left', row: 1, name: 'Bilik Study', bg: '#f3e5f5', npc: { name: 'Papa Bear', color: '#4fc3f7', hair: '#5e2a35', dialogue: 'Kek tu sorok dalam Bilik Makan. Jangan masuk bilik lain tak tentu arah! 📚' },
+    { key: 'study', side: 'left', row: 1, name: 'Bilik Study', bg: '#f3e5f5',
+      npc: { name: 'Abang', color: '#81d4fa', hair: '#3e2723', gender: 'boy', dialogue: 'Lotso, jangan kasi tahu sesiapa ye. Ada surprise malam ni! 🤫' },
       furniture: [
-        { type: 'bookshelf', x: 20*dpr, y: 40*dpr, w: 70*dpr, h: 180*dpr, color: '#8d6e63' },
-        { type: 'desk', x: 110*dpr, y: 220*dpr, w: 110*dpr, h: 60*dpr, color: '#bcaaa4' }
+        { type: 'bookshelf', x: 20*dpr, y: 40*dpr, w: 65*dpr, h: 170*dpr, color: '#8d6e63' },
+        { type: 'desk', x: 20*dpr, y: 250*dpr, w: 120*dpr, h: 55*dpr, color: '#bcaaa4' }
       ] },
-    { key: 'living', side: 'left', row: 2, name: 'Bilik Tamu', bg: '#e8f5e9', npc: { name: 'Adik Bear', color: '#81d4fa', hair: '#5e2a35', dialogue: 'Aku nampak Nenek Bear bawa kek masuk Bilik Makan tadi! 🎂' },
+    { key: 'living', side: 'left', row: 2, name: 'Bilik Tamu', bg: '#e8f5e9',
+      npc: { name: 'Kakak', color: '#ff99aa', hair: '#5e2a35', gender: 'girl', dialogue: 'Hari ni sayang pakai baju comel. Mesti ada sesuatu istimewa. 👗' },
       furniture: [
-        { type: 'sofa', x: 25*dpr, y: 60*dpr, w: 150*dpr, h: 75*dpr, color: '#ff99aa' },
-        { type: 'tv', x: 40*dpr, y: 220*dpr, w: 120*dpr, h: 75*dpr, color: '#5e2a35' }
+        { type: 'sofa', x: 20*dpr, y: 60*dpr, w: 140*dpr, h: 70*dpr, color: '#ff8fab' },
+        { type: 'tv', x: 30*dpr, y: 230*dpr, w: 110*dpr, h: 70*dpr, color: '#5e2a35' }
       ] },
     // Right column
-    { key: 'bathroom', side: 'right', row: 0, name: 'Bilik Mandi', bg: '#e1f5fe', npc: { name: 'Mama Bear', color: '#fb6f92', hair: '#5e2a35', dialogue: 'Mandi dulu ke cari kek dulu? Hihi, cepat pergi Bilik Makan! 🛁' },
+    { key: 'bathroom', side: 'right', row: 0, name: 'Bilik Mandi', bg: '#e1f5fe',
+      npc: { name: 'Mama', color: '#fb6f92', hair: '#5e2a35', gender: 'woman', dialogue: 'Saya tengah siapkan iron baju. Malam ni kita keluar makan sedap. ✨' },
       furniture: [
-        { type: 'bathtub', x: 40*dpr, y: 50*dpr, w: 130*dpr, h: 160*dpr, color: '#b3e5fc' },
-        { type: 'sink', x: 120*dpr, y: 250*dpr, w: 65*dpr, h: 55*dpr, color: '#fff' }
+        { type: 'bathtub', x: ROOM_W - 160*dpr, y: 50*dpr, w: 120*dpr, h: 150*dpr, color: '#b3e5fc' },
+        { type: 'sink', x: ROOM_W - 90*dpr, y: 250*dpr, w: 60*dpr, h: 50*dpr, color: '#fff' }
       ] },
-    { key: 'guest', side: 'right', row: 1, name: 'Bilik Tetamu', bg: '#fff3e0', npc: { name: 'Kawan Bear', color: '#ffcc80', hair: '#5e2a35', dialogue: 'Bilik Makan ada bau manis-manis. Mesti kek tu! 🍰' },
+    { key: 'guest', side: 'right', row: 1, name: 'Bilik Tetamu', bg: '#fff3e0',
+      npc: { name: 'Adik', color: '#ce93d8', hair: '#5e2a35', gender: 'girl', dialogue: 'Lotso, ikut je Mama nanti. Jangan lari-lari dalam rumah ye. 🎀' },
       furniture: [
-        { type: 'bed-small', x: 35*dpr, y: 55*dpr, w: 130*dpr, h: 150*dpr, color: '#ce93d8' },
-        { type: 'toybox', x: 120*dpr, y: 240*dpr, w: 75*dpr, h: 60*dpr, color: '#ffab91' }
+        { type: 'bed-small', x: ROOM_W - 155*dpr, y: 55*dpr, w: 120*dpr, h: 140*dpr, color: '#e1bee7' },
+        { type: 'toybox', x: ROOM_W - 95*dpr, y: 240*dpr, w: 70*dpr, h: 55*dpr, color: '#ffab91' }
       ] },
-    { key: 'dining', side: 'right', row: 2, name: 'Bilik Makan', bg: '#fff8fa', npc: { name: 'Nenek Bear', color: '#ce93d8', hair: '#7a3d4d', dialogue: 'Surprise! Kek dah siap atas meja. Selamat mencari! 🎉' },
+    { key: 'dining', side: 'right', row: 2, name: 'Bilik Makan', bg: '#fff8fa',
+      npc: null,
       furniture: [
-        { type: 'fridge', x: 30*dpr, y: 40*dpr, w: 60*dpr, h: 120*dpr, color: '#e3f2fd' },
-        { type: 'cabinet', x: 30*dpr, y: 180*dpr, w: 110*dpr, h: 60*dpr, color: '#a1887f' }
+        { type: 'fridge', x: ROOM_W - 80*dpr, y: 40*dpr, w: 55*dpr, h: 110*dpr, color: '#e3f2fd' },
+        { type: 'cabinet', x: ROOM_W - 125*dpr, y: 180*dpr, w: 100*dpr, h: 55*dpr, color: '#a1887f' }
       ] }
   ];
 
@@ -125,9 +133,11 @@ function buildWorld() {
     });
 
     // NPC
-    const npcX = rx + (def.side === 'left' ? ROOM_W * 0.55 : ROOM_W * 0.45);
-    const npcY = ry + ROOM_H * 0.6;
-    npcs.push({ ...def.npc, x: npcX, y: npcY });
+    if (def.npc) {
+      const npcX = rx + (def.side === 'left' ? ROOM_W * 0.42 : ROOM_W * 0.58);
+      const npcY = ry + ROOM_H * 0.62;
+      npcs.push({ ...def.npc, x: npcX, y: npcY });
+    }
 
     // Dining table with hidden cake
     if (def.key === 'dining') {
@@ -204,6 +214,17 @@ function update() {
   }
   if (shake > 0) shake *= 0.92; if (shake < 0.3) shake = 0;
   if (!cakeFound && !cakeRevealed) checkCakeFound();
+
+  // Move family into celebration circle after cake found
+  if (celebrating) {
+    npcs.forEach((npc, i) => {
+      const t = celebrationTargets[i];
+      if (t) {
+        npc.x += (t.x - npc.x) * 0.08;
+        npc.y += (t.y - npc.y) * 0.08;
+      }
+    });
+  }
 }
 
 function resolveCollision(axis) {
@@ -264,6 +285,7 @@ function draw() {
   drawFurniture();
   drawNPCs();
   drawDiningCake();
+  if (celebrating) drawSingingText();
   drawLotso();
   drawRoomLabels();
   drawConfetti();
@@ -423,18 +445,131 @@ function drawDiningCake() {
 }
 
 function drawNPCs() {
-  for (const npc of npcs) drawPerson(npc.x, npc.y, npc.color, npc.hair);
+  for (const npc of npcs) {
+    drawPerson(npc.x, npc.y, npc.color, npc.hair, npc.gender);
+    if (isNearNPC(npc)) drawSpeechBubble(npc);
+  }
 }
-function drawPerson(x, y, bodyColor, hairColor) {
+
+function isNearNPC(npc) {
+  const cx = lotso.x + lotso.width*dpr/2;
+  const cy = lotso.y + lotso.height*dpr/2;
+  return Math.hypot(cx - npc.x, cy - npc.y) < 80*dpr;
+}
+
+function drawSpeechBubble(npc) {
   const s = dpr;
+  const text = npc.dialogue;
+  ctx.font = `600 ${12*s}px Quicksand, sans-serif`;
+  const maxWidth = 160*s;
+  const lines = wrapText(text, maxWidth);
+  const lineHeight = 16*s;
+  const padX = 12*s;
+  const padY = 10*s;
+  const bw = Math.min(maxWidth + padX * 2, Math.max(...lines.map(l => ctx.measureText(l).width)) + padX * 2);
+  const bh = lines.length * lineHeight + padY * 2;
+  const bx = npc.x - bw / 2;
+  const by = npc.y - 70*s - bh;
+
+  // Bubble
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+  ctx.strokeStyle = 'rgba(255, 77, 109, 0.5)';
+  ctx.lineWidth = 2*s;
+  roundRect(bx, by, bw, bh, 10*s);
+  ctx.fill(); ctx.stroke();
+
+  // Tail
+  ctx.beginPath();
+  ctx.moveTo(npc.x - 8*s, by + bh);
+  ctx.lineTo(npc.x, by + bh + 10*s);
+  ctx.lineTo(npc.x + 8*s, by + bh);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+
+  // Text
+  ctx.fillStyle = '#5e2a35';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  lines.forEach((line, i) => {
+    ctx.fillText(line, npc.x, by + padY + lineHeight * i + lineHeight / 2);
+  });
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+}
+
+function wrapText(text, maxWidth) {
+  const words = text.split(' ');
+  const lines = [];
+  let current = '';
+  for (const word of words) {
+    const test = current ? current + ' ' + word : word;
+    if (ctx.measureText(test).width > maxWidth && current) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = test;
+    }
+  }
+  if (current) lines.push(current);
+  return lines.length ? lines : [text];
+}
+
+function drawPerson(x, y, bodyColor, hairColor, gender) {
+  const s = dpr;
+  const isFemale = gender === 'girl' || gender === 'woman';
+  const isChild = gender === 'girl' || gender === 'boy';
+
+  // Shadow
   ctx.fillStyle = 'rgba(0,0,0,0.15)';
-  ctx.beginPath(); ctx.ellipse(x, y + 28*s, 15*s, 5*s, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x, y + 30*s, 15*s, 5*s, 0, 0, Math.PI*2); ctx.fill();
+
+  // Body
   ctx.fillStyle = bodyColor;
-  ctx.beginPath(); ctx.ellipse(x, y + 9*s, 15*s, 19*s, 0, 0, Math.PI*2); ctx.fill();
+  if (isFemale) {
+    // Dress shape
+    ctx.beginPath();
+    ctx.moveTo(x - 14*s, y + 8*s);
+    ctx.lineTo(x + 14*s, y + 8*s);
+    ctx.lineTo(x + 18*s, y + 32*s);
+    ctx.lineTo(x - 18*s, y + 32*s);
+    ctx.closePath();
+    ctx.fill();
+  } else {
+    // Shirt + pants
+    ctx.beginPath(); ctx.ellipse(x, y + 8*s, 15*s, 18*s, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#5e2a35';
+    ctx.fillRect(x - 12*s, y + 20*s, 10*s, 14*s);
+    ctx.fillRect(x + 2*s, y + 20*s, 10*s, 14*s);
+  }
+
+  // Head
   ctx.fillStyle = '#ffe0bd';
   ctx.beginPath(); ctx.arc(x, y - 13*s, 12*s, 0, Math.PI*2); ctx.fill();
+
+  // Hair
   ctx.fillStyle = hairColor;
-  ctx.beginPath(); ctx.arc(x, y - 17*s, 13*s, Math.PI, 0); ctx.fill();
+  if (isFemale) {
+    // Long hair
+    ctx.beginPath();
+    ctx.arc(x, y - 16*s, 13*s, Math.PI, 0);
+    ctx.lineTo(x + 13*s, y + 5*s);
+    ctx.lineTo(x - 13*s, y + 5*s);
+    ctx.closePath();
+    ctx.fill();
+    if (gender === 'girl') {
+      // Bow
+      ctx.fillStyle = '#ff4d6d';
+      ctx.beginPath(); ctx.arc(x - 10*s, y - 22*s, 4*s, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x - 16*s, y - 22*s, 4*s, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#ffd700';
+      ctx.beginPath(); ctx.arc(x - 13*s, y - 22*s, 2*s, 0, Math.PI*2); ctx.fill();
+    }
+  } else {
+    // Short hair
+    ctx.beginPath(); ctx.arc(x, y - 16*s, 13*s, Math.PI, 0); ctx.fill();
+  }
+
+  // Eyes & smile
   ctx.fillStyle = '#3e2723';
   ctx.beginPath(); ctx.arc(x - 4*s, y - 13*s, 2*s, 0, Math.PI*2); ctx.arc(x + 4*s, y - 13*s, 2*s, 0, Math.PI*2); ctx.fill();
   ctx.strokeStyle = '#3e2723'; ctx.lineWidth = 1.5*s;
@@ -451,6 +586,22 @@ function drawLotso() {
   ctx.translate(x + w/2, y + h/2);
   ctx.scale(lotso.facing * (w / lotsoImg.naturalWidth), h / lotsoImg.naturalHeight);
   ctx.drawImage(lotsoImg, -lotsoImg.naturalWidth/2, -lotsoImg.naturalHeight/2);
+  ctx.restore();
+}
+
+function drawSingingText() {
+  if (!diningTable) return;
+  const cx = diningTable.x + diningTable.w / 2;
+  const cy = diningTable.y - 90 * dpr;
+  ctx.save();
+  ctx.font = `bold ${22 * dpr}px Pacifico, cursive`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#ff4d6d';
+  ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
+  ctx.shadowBlur = 12 * dpr;
+  const bounce = Math.sin(gameTime * 4) * 5 * dpr;
+  ctx.fillText('Happy Birthday to You! 🎶', cx, cy + bounce);
   ctx.restore();
 }
 
@@ -529,6 +680,17 @@ function foundCake() {
   if (birthdayConsole) { birthdayConsole.classList.add('active'); birthdayConsole.setAttribute('aria-hidden','false'); }
   if (dialogueBox) dialogueBox.classList.remove('active');
   if (cakeHint) cakeHint.textContent = 'Yay! Jumpa kek! Selamat Hari Lahir Sayang! 💕';
+
+  // Gather family around the cake
+  celebrating = true;
+  const cx = diningTable.x + diningTable.w / 2;
+  const cy = diningTable.y + diningTable.h / 2;
+  const radius = 95 * dpr;
+  celebrationTargets = npcs.map((_, i) => {
+    const angle = (i / npcs.length) * Math.PI * 2 - Math.PI / 2;
+    return { x: cx + Math.cos(angle) * radius, y: cy + Math.sin(angle) * radius };
+  });
+
   vibrate([80,60,80,60,80]); shake = 14*dpr;
   spawnConfetti(140); spawnSparkles(50);
   wasMusicPlaying = typeof musicStarted !== 'undefined' && musicStarted && !music.paused;
@@ -546,7 +708,8 @@ function resumeBackgroundMusic() {
 function restartCakeGame() {
   if (birthdaySong) { birthdaySong.pause(); birthdaySong.currentTime = 0; }
   resumeBackgroundMusic();
-  cakeFound = false; cakeRevealed = false; moveDir = {x:0,y:0}; confetti = []; sparkles = [];
+  cakeFound = false; cakeRevealed = false; celebrating = false; celebrationTargets = [];
+  moveDir = {x:0,y:0}; confetti = []; sparkles = [];
   if (dpad) dpad.classList.remove('hidden');
   if (birthdayConsole) { birthdayConsole.classList.remove('active'); birthdayConsole.setAttribute('aria-hidden','true'); }
   if (dialogueBox) dialogueBox.classList.remove('active');

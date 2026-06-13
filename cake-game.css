@@ -118,8 +118,10 @@
   font-weight: 700;
 }
 
-/* NPC dialogue box */
+/* NPC dialogue box (hidden — speech bubbles drawn on canvas) */
 .dialogue-box {
+  display: none !important;
+}
   display: none;
   max-width: 90%;
   margin: 0 auto 10px;
