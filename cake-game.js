@@ -18,6 +18,7 @@ let cakeGameActive = false;
 let cakeFound = false;
 let gameTime = 0;
 let wasMusicPlaying = false;
+let birthdayAudioPrimed = false;
 
 const lotsoImg = new Image();
 lotsoImg.src = 'assets/lotso.svg';
@@ -754,17 +755,30 @@ function foundCake() {
   playHappyBirthdaySong();
 }
 
+function primeBirthdayAudio() {
+  if (birthdayAudioPrimed || !birthdaySong) return;
+  // Play/pause silently on first user gesture to unlock audio on mobile browsers
+  birthdaySong.volume = 0;
+  birthdaySong.play().then(() => {
+    birthdaySong.pause();
+    birthdaySong.currentTime = 0;
+    birthdayAudioPrimed = true;
+  }).catch(() => {});
+}
+
 function playHappyBirthdaySong() {
-  // Local file:// pages cannot talk to the YouTube iframe (origin null),
-  // so use the direct MP3 fallback there and whenever YouTube isn't ready.
-  const isLocalFile = location.protocol === 'file:';
-  if (!isLocalFile && youtubeReady && youtubePlayer && youtubePlayer.playVideo) {
-    youtubePlayer.seekTo(0);
-    youtubePlayer.playVideo();
-  } else if (birthdaySong) {
-    birthdaySong.currentTime = 0; birthdaySong.volume = 0.85;
-    birthdaySong.play().catch(() => resumeBackgroundMusic());
+  if (!birthdaySong) {
+    resumeBackgroundMusic();
+    return;
   }
+  birthdaySong.currentTime = 0;
+  birthdaySong.volume = 0.85;
+  birthdaySong.play().then(() => {
+    birthdayAudioPrimed = true;
+  }).catch(() => {
+    // Mobile autoplay blocked even after priming; resume background music so it isn't silent
+    resumeBackgroundMusic();
+  });
 }
 
 function onYouTubeIframeAPIReady() {
@@ -803,7 +817,7 @@ function initCakeControls() {
   const buttons = dpad.querySelectorAll('.dpad-btn');
   const dirs = { up:[0,-1], down:[0,1], left:[-1,0], right:[1,0] };
   buttons.forEach(btn => {
-    const start = (e) => { e.preventDefault(); if (cakeFound) return; const d = dirs[btn.dataset.dir]; moveDir.x = d[0]; moveDir.y = d[1]; };
+    const start = (e) => { e.preventDefault(); primeBirthdayAudio(); if (cakeFound) return; const d = dirs[btn.dataset.dir]; moveDir.x = d[0]; moveDir.y = d[1]; };
     const stop = (e) => { e.preventDefault(); moveDir.x = 0; moveDir.y = 0; };
     btn.addEventListener('pointerdown', start);
     btn.addEventListener('pointerup', stop);
@@ -814,6 +828,7 @@ function initCakeControls() {
 
 window.addEventListener('keydown', (e) => {
   if (!cakeGameActive || cakeFound) return;
+  primeBirthdayAudio();
   const map = { ArrowUp:[0,-1], ArrowDown:[0,1], ArrowLeft:[-1,0], ArrowRight:[1,0] };
   if (map[e.key]) { e.preventDefault(); moveDir.x = map[e.key][0]; moveDir.y = map[e.key][1]; }
 });
