@@ -837,32 +837,53 @@ html, body {
 
 .reason-item {
   position: relative;
-  background: linear-gradient(135deg, var(--pink-2), #fff);
+  background: #fff;
   border-radius: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   padding: 12px;
   box-shadow: 0 4px 14px rgba(91, 36, 54, 0.1);
+  cursor: pointer;
+  transition: transform 0.25s ease, background 0.25s ease;
   text-align: center;
-  overflow: hidden;
   min-height: 110px;
 }
 
+.reason-item:hover {
+  transform: translateY(-4px);
+}
+
+.reason-item.revealed {
+  background: linear-gradient(135deg, var(--pink-2), #fff);
+  cursor: default;
+}
+
 .reason-heart {
-  font-size: 1.4rem;
+  font-size: 2rem;
   line-height: 1;
-  margin-bottom: 6px;
   transition: transform 0.3s ease;
   animation: heartbeat 1.4s ease-in-out infinite;
 }
 
+.reason-item.revealed .reason-heart {
+  animation: none;
+  transform: scale(0.85);
+  opacity: 0.7;
+}
+
 .reason-text {
-  font-size: 0.72rem;
+  display: none;
+  margin-top: 6px;
+  font-size: 0.74rem;
   font-weight: 700;
   color: var(--dark);
   line-height: 1.35;
+}
+
+.reason-item.revealed .reason-text {
+  display: block;
 }
 
 @keyframes heartbeat {
@@ -891,7 +912,7 @@ html, body {
   }
 
   .reason-heart {
-    font-size: 1.2rem;
+    font-size: 1.6rem;
   }
 
   .reason-text {
