@@ -53,6 +53,7 @@ html, body {
   font-size: 1.6rem;
   opacity: 0.75;
   animation: floatUp linear forwards;
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -116,6 +117,7 @@ html, body {
   max-height: 90vh;
   overflow-y: auto;
   background: var(--white);
+  -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -355,6 +357,7 @@ html, body {
   border: 2px dashed var(--pink-4);
   margin-bottom: 18px;
   touch-action: none;
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -369,6 +372,7 @@ html, body {
   z-index: 10;
   cursor: grab;
   touch-action: none;
+  -webkit-user-select: none;
   user-select: none;
   -webkit-user-drag: none;
   transition: transform 0.1s ease;
@@ -393,6 +397,7 @@ html, body {
   font-size: 2.1rem;
   line-height: 1;
   pointer-events: none;
+  -webkit-user-select: none;
   user-select: none;
   z-index: 5;
   will-change: transform;
