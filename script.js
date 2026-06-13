@@ -141,15 +141,15 @@ setInterval(createParticle, 700);
 
 /* ---------- Reasons why I love you ---------- */
 const reasonsData = [
-  'Senyum awak tu cahaya paling manis dalam hari Abi ☀️',
-  'Hati awak baik sangat, Abi terharu 🥺',
-  'Suara awak tenangkan jiwa Abi yang riuh 🎶',
-  'Awak buat Abi rasa dicintai dengan ikhlas 💕',
-  'Awak anugerah paling indah dalam hidup Abi 🎁',
-  'Tabah awak buat Abi semakin sayang 🌟',
-  'Bersama awak, Abi percaya pada cinta sejati ❤️',
-  'Abi rasa bertuah sangat ada awak 🍀',
-  'Abi janji nak jaga & sayang awak selamanya 🤗'
+  '💗 Sayang selalu bagi abi semangat untuk jadi lebih baik 🌷',
+  '💗 Sayang percaya pada kemampuan abi, walaupun kadang-kadang abi sendiri ragu 🥺',
+  '💗 Sayang seorang yang sangat baik hati, lembut, dan suka tolong orang 🤍',
+  '💗 Sayang seorang yang tabah dan kuat bila hadap dugaan hidup 💕',
+  '💗 Abi bangga dengan sayang sebab walaupun banyak benda sayang pendam, sayang masih mampu senyum 🥺',
+  '💗 Abi tahu bukan semua benda mudah untuk sayang, tapi sayang tetap cuba bertahan 🤍',
+  '💗 Sayang seorang yang ceria, walaupun dalam hati ada banyak rasa yang sayang simpan 🌸',
+  '💗 Dengan sayang, abi tak pernah rasa serabut sebab sayang sangat tenang dan menenangkan 🌻',
+  '💗 Perangai sayang yang comel tu selalu buat abi makin sayang dekat sayang 🥰'
 ];
 
 function initReasons() {
