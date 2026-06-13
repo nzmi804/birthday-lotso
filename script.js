@@ -65,18 +65,23 @@ function initMusicState() {
     return;
   }
 
-  const userPaused = sessionStorage.getItem('musicPlaying') === 'false';
-  if (!userPaused) {
-    music.volume = 0.9;
-    music.play().then(() => {
-      musicStarted = true;
-      sessionStorage.setItem('musicPlaying', 'true');
-      updateMusicToggle(true);
-    }).catch(() => updateMusicToggle(false));
-  } else {
-    updateMusicToggle(false);
-  }
+  music.volume = 0.9;
+  music.play().then(() => {
+    musicStarted = true;
+    sessionStorage.setItem('musicPlaying', 'true');
+    updateMusicToggle(true);
+  }).catch(() => updateMusicToggle(false));
+
   enableAutoMusic();
+}
+
+function retryAutoPlay() {
+  if (!music || musicStarted || window.birthdaySongPlaying) return;
+  music.play().then(() => {
+    musicStarted = true;
+    sessionStorage.setItem('musicPlaying', 'true');
+    updateMusicToggle(true);
+  }).catch(() => {});
 }
 
 /* ---------- Custom video placeholder (Lotso + play button) ---------- */
