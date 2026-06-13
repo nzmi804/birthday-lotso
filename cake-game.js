@@ -79,38 +79,38 @@ function buildWorld() {
     { key: 'bedroom', side: 'left', row: 0, bg: '#fff0f3', locked: false,
       npc: { name: 'Abi', color: '#4fc3f7', hair: '#3e2723', gender: 'man', dialogue: 'Yayang, nanti malam kita ada plan special. Jangan tanya apa-apa dulu! 😉' },
       furniture: [
-        { type: 'bed', x: 20*dpr, y: 55*dpr, w: 130*dpr, h: 160*dpr, color: '#ffb3c1' },
-        { type: 'wardrobe', x: 20*dpr, y: 250*dpr, w: 70*dpr, h: 110*dpr, color: '#a1887f' }
+        { type: 'bed', x: 95*dpr, y: 60*dpr, w: 120*dpr, h: 150*dpr, color: '#ffb3c1' },
+        { type: 'wardrobe', x: 95*dpr, y: 230*dpr, w: 70*dpr, h: 90*dpr, color: '#a1887f' }
       ] },
     { key: 'study', side: 'left', row: 1, bg: '#f3e5f5', locked: false,
       npc: { name: 'Abang', color: '#81d4fa', hair: '#3e2723', gender: 'boy', dialogue: 'Shhh… jangan bising. Nanti Ummie tahu surprise kita! 🤫' },
       furniture: [
-        { type: 'bookshelf', x: 20*dpr, y: 40*dpr, w: 65*dpr, h: 170*dpr, color: '#8d6e63' },
-        { type: 'desk', x: 20*dpr, y: 250*dpr, w: 120*dpr, h: 55*dpr, color: '#bcaaa4' }
+        { type: 'bookshelf', x: 100*dpr, y: 40*dpr, w: 80*dpr, h: 170*dpr, color: '#8d6e63' },
+        { type: 'desk', x: 100*dpr, y: 250*dpr, w: 120*dpr, h: 55*dpr, color: '#bcaaa4' }
       ] },
     { key: 'living', side: 'left', row: 2, bg: '#e8f5e9', locked: false,
       npc: { name: 'Kakak', color: '#ff99aa', hair: '#5e2a35', gender: 'girl', dialogue: 'Hari ni Ummie pakai baju comel. Mesti ada sesuatu istimewa. 👗' },
       furniture: [
-        { type: 'sofa', x: 20*dpr, y: 60*dpr, w: 140*dpr, h: 70*dpr, color: '#ff8fab' },
-        { type: 'tv', x: 30*dpr, y: 230*dpr, w: 110*dpr, h: 70*dpr, color: '#5e2a35' }
+        { type: 'sofa', x: 100*dpr, y: 60*dpr, w: 120*dpr, h: 70*dpr, color: '#ff8fab' },
+        { type: 'tv', x: 100*dpr, y: 230*dpr, w: 110*dpr, h: 70*dpr, color: '#5e2a35' }
       ] },
     { key: 'bathroom', side: 'right', row: 0, bg: '#e1f5fe', locked: false,
       npc: { name: 'Adik', color: '#ce93d8', hair: '#5e2a35', gender: 'girl', dialogue: 'Ummie nampak comel hari ni. Kita semua sayang Ummie! 💕' },
       furniture: [
-        { type: 'bathtub', x: ROOM_W - 160*dpr, y: 50*dpr, w: 120*dpr, h: 150*dpr, color: '#b3e5fc' },
-        { type: 'sink', x: ROOM_W - 90*dpr, y: 250*dpr, w: 60*dpr, h: 50*dpr, color: '#fff' }
+        { type: 'bathtub', x: 20*dpr, y: 50*dpr, w: 120*dpr, h: 150*dpr, color: '#b3e5fc' },
+        { type: 'sink', x: 20*dpr, y: 250*dpr, w: 60*dpr, h: 50*dpr, color: '#fff' }
       ] },
     { key: 'dining', side: 'right', row: 1, bg: '#fff8fa', locked: true,
       npc: null,
       furniture: [
-        { type: 'fridge', x: ROOM_W - 80*dpr, y: 40*dpr, w: 55*dpr, h: 110*dpr, color: '#e3f2fd' },
-        { type: 'cabinet', x: ROOM_W - 125*dpr, y: 180*dpr, w: 100*dpr, h: 55*dpr, color: '#a1887f' }
+        { type: 'fridge', x: 20*dpr, y: 40*dpr, w: 55*dpr, h: 110*dpr, color: '#e3f2fd' },
+        { type: 'cabinet', x: 20*dpr, y: 180*dpr, w: 100*dpr, h: 55*dpr, color: '#a1887f' }
       ] },
     { key: 'guest', side: 'right', row: 2, bg: '#fff3e0', locked: false,
       npc: null,
       furniture: [
-        { type: 'bed-small', x: ROOM_W - 155*dpr, y: 55*dpr, w: 120*dpr, h: 140*dpr, color: '#e1bee7' },
-        { type: 'toybox', x: ROOM_W - 95*dpr, y: 240*dpr, w: 70*dpr, h: 55*dpr, color: '#ffab91' }
+        { type: 'bed-small', x: 20*dpr, y: 55*dpr, w: 120*dpr, h: 140*dpr, color: '#e1bee7' },
+        { type: 'toybox', x: 20*dpr, y: 240*dpr, w: 70*dpr, h: 55*dpr, color: '#ffab91' }
       ] }
   ];
 
@@ -140,7 +140,7 @@ function buildWorld() {
 
     // Dining table
     if (def.key === 'dining') {
-      diningTable = { x: rx + 40*dpr, y: ry + ROOM_H - 150*dpr, w: 150*dpr, h: 90*dpr };
+      diningTable = { x: rx + ROOM_W - 190*dpr, y: ry + ROOM_H - 150*dpr, w: 150*dpr, h: 90*dpr };
       furniture.push({ type: 'table', ...diningTable, color: '#d7ccc8' });
       furniture.push({ type: 'chair', x: diningTable.x - 35*dpr, y: diningTable.y + 20*dpr, w: 30*dpr, h: 35*dpr, color: '#8d6e63' });
       furniture.push({ type: 'chair', x: diningTable.x + diningTable.w + 5*dpr, y: diningTable.y + 20*dpr, w: 30*dpr, h: 35*dpr, color: '#8d6e63' });
@@ -222,18 +222,22 @@ function update() {
 }
 
 function resolveCollision(axis) {
-  const r = { x: lotso.x, y: lotso.y, w: lotso.width*dpr, h: lotso.height*dpr };
+  // Use a smaller bottom-centred hitbox so Lotso can squeeze past furniture more easily
+  const hw = 38 * dpr, hh = 50 * dpr;
+  const ox = (lotso.width * dpr - hw) / 2;
+  const oy = lotso.height * dpr - hh;
+  const r = { x: lotso.x + ox, y: lotso.y + oy, w: hw, h: hh };
   for (const w of walls) {
     if (w.lockedDoor && isDiningUnlocked()) continue; // dining door opens
     if (rectIntersect(r, w)) {
-      if (axis === 'x') lotso.x = lotso.x < w.x ? w.x - r.w : w.x + w.w;
-      else lotso.y = lotso.y < w.y ? w.y - r.h : w.y + w.h;
+      if (axis === 'x') lotso.x = r.x < w.x ? w.x - ox - hw : w.x + w.w - ox;
+      else lotso.y = r.y < w.y ? w.y - oy - hh : w.y + w.h - oy;
     }
   }
   for (const f of furniture) {
     if (rectIntersect(r, { x: f.x, y: f.y, w: f.w, h: f.h })) {
-      if (axis === 'x') lotso.x = lotso.x < f.x ? f.x - r.w : f.x + f.w;
-      else lotso.y = lotso.y < f.y ? f.y - r.h : f.y + f.h;
+      if (axis === 'x') lotso.x = r.x < f.x ? f.x - ox - hw : f.x + f.w - ox;
+      else lotso.y = r.y < f.y ? f.y - oy - hh : f.y + f.h - oy;
     }
   }
 }
