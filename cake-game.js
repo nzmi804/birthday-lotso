@@ -118,7 +118,7 @@ function buildWorld() {
         { type: 'chair', x: 150*dpr, y: 125*dpr, w: 55*dpr, h: 55*dpr, color: '#8d6e63' },
         { type: 'plant', x: 150*dpr, y: 300*dpr, w: 50*dpr, h: 50*dpr, color: '#81c784' }
       ] },
-    { key: 'guestRoom', side: 'right', row: 1, bg: '#fff8fa', locked: false,
+    { key: 'diningRoom', side: 'right', row: 1, bg: '#fff8fa', locked: true,
       npc: null,
       furniture: [
         { type: 'bed-small', x: 150*dpr, y: 140*dpr, w: 140*dpr, h: 170*dpr, color: '#e1bee7' },
@@ -132,7 +132,7 @@ function buildWorld() {
         { type: 'sink', x: 180*dpr, y: 220*dpr, w: 85*dpr, h: 60*dpr, color: '#fff' },
         { type: 'cabinet', x: 200*dpr, y: 320*dpr, w: 80*dpr, h: 80*dpr, color: '#a1887f' }
       ] },
-    { key: 'diningRoom', side: 'right', row: 3, bg: '#fff8fa', locked: true,
+    { key: 'guestRoom', side: 'right', row: 3, bg: '#fff8fa', locked: false,
       npc: null,
       furniture: [
         { type: 'cabinet', x: 30*dpr, y: 40*dpr, w: 250*dpr, h: 60*dpr, color: '#a1887f' },
@@ -622,7 +622,7 @@ function drawRoomLabels() {
   ctx.fillStyle = 'rgba(93,64,55,0.22)';
   const labels = [
     { side:'left', row:0, text:'Bilik Tidur Utama' }, { side:'left', row:1, text:'Bilik Kanak-Kanak' }, { side:'left', row:2, text:'Bilik Tamu' }, { side:'left', row:3, text:'Dapur' },
-    { side:'right', row:0, text:'Bilik Study' }, { side:'right', row:1, text:'Bilik Tetamu' }, { side:'right', row:2, text:'Bilik Mandi' }, { side:'right', row:3, text:'Bilik Makan' }
+    { side:'right', row:0, text:'Bilik Study' }, { side:'right', row:1, text:'Bilik Makan' }, { side:'right', row:2, text:'Bilik Mandi' }, { side:'right', row:3, text:'Bilik Tetamu' }
   ];
   labels.forEach(l => {
     const rx = l.side === 'left' ? 0 : ROOM_W + CORRIDOR_W;
