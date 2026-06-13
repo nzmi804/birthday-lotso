@@ -149,7 +149,8 @@ const reasonsData = [
   '💗 Abi tahu bukan semua benda mudah untuk sayang, tapi sayang tetap cuba bertahan 🤍',
   '💗 Sayang seorang yang ceria, walaupun dalam hati ada banyak rasa yang sayang simpan 🌸',
   '💗 Dengan sayang, abi tak pernah rasa serabut sebab sayang sangat tenang dan menenangkan 🌻',
-  '💗 Perangai sayang yang comel tu selalu buat abi makin sayang dekat sayang 🥰'
+  '💗 Perangai sayang yang comel tu selalu buat abi makin sayang dekat sayang 🥰',
+  '💗 Sayang selalu ada dengan abi, waktu abi kuat mahupun waktu abi rasa lemah 🫶'
 ];
 
 function initReasons() {
