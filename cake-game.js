@@ -77,7 +77,7 @@ function buildWorld() {
 
   const roomDefs = [
     { key: 'bedroom', side: 'left', row: 0, bg: '#fff0f3', locked: false,
-      npc: { name: 'Papa', color: '#4fc3f7', hair: '#3e2723', gender: 'man', dialogue: 'Sayang, nanti malam kita ada plan special. Jangan tanya apa-apa dulu! 😉' },
+      npc: { name: 'Abi', color: '#4fc3f7', hair: '#3e2723', gender: 'man', dialogue: 'Sayang, nanti malam kita ada plan special. Jangan tanya apa-apa dulu! 😉' },
       furniture: [
         { type: 'bed', x: 20*dpr, y: 55*dpr, w: 130*dpr, h: 160*dpr, color: '#ffb3c1' },
         { type: 'wardrobe', x: 20*dpr, y: 250*dpr, w: 70*dpr, h: 110*dpr, color: '#a1887f' }
@@ -696,7 +696,7 @@ function restartCakeGame() {
   moveDir = {x:0,y:0}; confetti = []; sparkles = [];
   if (dpad) dpad.classList.remove('hidden');
   if (birthdayConsole) { birthdayConsole.classList.remove('active'); birthdayConsole.setAttribute('aria-hidden','true'); }
-  if (cakeHint) cakeHint.textContent = 'Cari Papa, Kakak, Abang & Adik dulu.';
+  if (cakeHint) cakeHint.textContent = 'Cari Abi, Kakak, Abang & Adik dulu.';
   buildWorld();
 }
 
