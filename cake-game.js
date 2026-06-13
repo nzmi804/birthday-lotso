@@ -79,9 +79,9 @@ function buildWorld() {
     { key: 'masterBedroom', side: 'left', row: 0, bg: '#fff0f3', locked: false,
       npc: { name: 'Abi', color: '#4fc3f7', hair: '#3e2723', gender: 'man', dialogue: 'Yayang, nanti malam kita ada plan special. Jangan tanya apa-apa dulu! 😉' },
       furniture: [
-        { type: 'wardrobe', x: 25*dpr, y: 35*dpr, w: 130*dpr, h: 75*dpr, color: '#a1887f' },
-        { type: 'bed', x: 140*dpr, y: 170*dpr, w: 150*dpr, h: 190*dpr, color: '#ffb3c1' },
-        { type: 'cabinet', x: 25*dpr, y: 300*dpr, w: 90*dpr, h: 60*dpr, color: '#bcaaa4' }
+        { type: 'wardrobe', x: 12*dpr, y: 12*dpr, w: 110*dpr, h: 130*dpr, color: '#a1887f' },
+        { type: 'bed', x: 12*dpr, y: 260*dpr, w: 170*dpr, h: 140*dpr, color: '#ffb3c1' },
+        { type: 'cabinet', x: 210*dpr, y: 280*dpr, w: 78*dpr, h: 120*dpr, color: '#bcaaa4' }
       ] },
     { key: 'kidsBedroom', side: 'left', row: 1, bg: '#f3e5f5', locked: false,
       npcs: [
@@ -89,51 +89,54 @@ function buildWorld() {
         { name: 'Adik', color: '#ce93d8', hair: '#5e2a35', gender: 'girl', dialogue: 'Ummie nampak comel hari ni. Kita semua sayang Ummie! 💕' }
       ],
       furniture: [
-        { type: 'bed-small', x: 150*dpr, y: 140*dpr, w: 140*dpr, h: 170*dpr, color: '#e1bee7' },
-        { type: 'desk', x: 25*dpr, y: 120*dpr, w: 110*dpr, h: 60*dpr, color: '#bcaaa4' },
-        { type: 'toybox', x: 25*dpr, y: 320*dpr, w: 85*dpr, h: 60*dpr, color: '#ffab91' }
+        { type: 'bed-small', x: 12*dpr, y: 270*dpr, w: 140*dpr, h: 130*dpr, color: '#e1bee7' },
+        { type: 'desk', x: 12*dpr, y: 40*dpr, w: 120*dpr, h: 70*dpr, color: '#bcaaa4' },
+        { type: 'toybox', x: 12*dpr, y: 140*dpr, w: 90*dpr, h: 60*dpr, color: '#ffab91' },
+        { type: 'bookshelf', x: 210*dpr, y: 300*dpr, w: 78*dpr, h: 100*dpr, color: '#8d6e63' }
       ] },
     { key: 'livingRoom', side: 'left', row: 2, bg: '#e8f5e9', locked: false,
       npc: { name: 'Kakak', color: '#ff99aa', hair: '#5e2a35', gender: 'girl', dialogue: 'Hari ni Ummie pakai baju comel. Mesti ada sesuatu istimewa. 👗' },
       furniture: [
-        { type: 'tv', x: 25*dpr, y: 40*dpr, w: 150*dpr, h: 60*dpr, color: '#5e2a35' },
-        { type: 'sofa', x: 25*dpr, y: 150*dpr, w: 190*dpr, h: 80*dpr, color: '#ff8fab' },
-        { type: 'table', x: 110*dpr, y: 320*dpr, w: 100*dpr, h: 60*dpr, color: '#d7ccc8' },
-        { type: 'plant', x: 235*dpr, y: 300*dpr, w: 45*dpr, h: 45*dpr, color: '#81c784' }
+        { type: 'tv', x: 12*dpr, y: 30*dpr, w: 140*dpr, h: 60*dpr, color: '#5e2a35' },
+        { type: 'sofa', x: 12*dpr, y: 290*dpr, w: 180*dpr, h: 80*dpr, color: '#ff8fab' },
+        { type: 'table', x: 110*dpr, y: 330*dpr, w: 100*dpr, h: 60*dpr, color: '#d7ccc8' },
+        { type: 'plant', x: 230*dpr, y: 40*dpr, w: 50*dpr, h: 50*dpr, color: '#81c784' }
       ] },
     { key: 'kitchen', side: 'left', row: 3, bg: '#fff3e0', locked: false,
       npc: null,
       furniture: [
-        { type: 'fridge', x: 25*dpr, y: 40*dpr, w: 65*dpr, h: 130*dpr, color: '#e3f2fd' },
-        { type: 'cabinet', x: 25*dpr, y: 200*dpr, w: 210*dpr, h: 60*dpr, color: '#a1887f' },
-        { type: 'cabinet', x: 205*dpr, y: 40*dpr, w: 70*dpr, h: 170*dpr, color: '#a1887f' }
+        { type: 'fridge', x: 12*dpr, y: 40*dpr, w: 65*dpr, h: 130*dpr, color: '#e3f2fd' },
+        { type: 'cabinet', x: 12*dpr, y: 210*dpr, w: 100*dpr, h: 190*dpr, color: '#a1887f' },
+        { type: 'cabinet', x: 12*dpr, y: 320*dpr, w: 250*dpr, h: 70*dpr, color: '#a1887f' },
+        { type: 'table', x: 130*dpr, y: 280*dpr, w: 100*dpr, h: 60*dpr, color: '#d7ccc8' }
       ] },
     { key: 'study', side: 'right', row: 0, bg: '#e1f5fe', locked: false,
       npc: null,
       furniture: [
-        { type: 'bookshelf', x: 30*dpr, y: 40*dpr, w: 75*dpr, h: 210*dpr, color: '#8d6e63' },
-        { type: 'desk', x: 125*dpr, y: 40*dpr, w: 150*dpr, h: 70*dpr, color: '#bcaaa4' },
-        { type: 'chair', x: 155*dpr, y: 125*dpr, w: 55*dpr, h: 55*dpr, color: '#8d6e63' }
+        { type: 'bookshelf', x: 205*dpr, y: 40*dpr, w: 75*dpr, h: 220*dpr, color: '#8d6e63' },
+        { type: 'desk', x: 120*dpr, y: 40*dpr, w: 150*dpr, h: 70*dpr, color: '#bcaaa4' },
+        { type: 'chair', x: 150*dpr, y: 125*dpr, w: 55*dpr, h: 55*dpr, color: '#8d6e63' },
+        { type: 'plant', x: 150*dpr, y: 300*dpr, w: 50*dpr, h: 50*dpr, color: '#81c784' }
       ] },
     { key: 'guestRoom', side: 'right', row: 1, bg: '#fff8fa', locked: false,
       npc: null,
       furniture: [
-        { type: 'bed-small', x: 30*dpr, y: 140*dpr, w: 140*dpr, h: 170*dpr, color: '#e1bee7' },
-        { type: 'wardrobe', x: 165*dpr, y: 40*dpr, w: 120*dpr, h: 75*dpr, color: '#a1887f' },
-        { type: 'cabinet', x: 165*dpr, y: 320*dpr, w: 100*dpr, h: 60*dpr, color: '#bcaaa4' }
+        { type: 'bed-small', x: 150*dpr, y: 140*dpr, w: 140*dpr, h: 170*dpr, color: '#e1bee7' },
+        { type: 'wardrobe', x: 180*dpr, y: 40*dpr, w: 100*dpr, h: 75*dpr, color: '#a1887f' },
+        { type: 'cabinet', x: 180*dpr, y: 330*dpr, w: 100*dpr, h: 60*dpr, color: '#bcaaa4' }
       ] },
     { key: 'commonBathroom', side: 'right', row: 2, bg: '#e1f5fe', locked: false,
       npc: null,
       furniture: [
-        { type: 'bathtub', x: 30*dpr, y: 50*dpr, w: 150*dpr, h: 100*dpr, color: '#b3e5fc' },
-        { type: 'sink', x: 30*dpr, y: 220*dpr, w: 85*dpr, h: 60*dpr, color: '#fff' },
-        { type: 'cabinet', x: 200*dpr, y: 220*dpr, w: 80*dpr, h: 100*dpr, color: '#a1887f' }
+        { type: 'bathtub', x: 130*dpr, y: 50*dpr, w: 150*dpr, h: 100*dpr, color: '#b3e5fc' },
+        { type: 'sink', x: 180*dpr, y: 220*dpr, w: 85*dpr, h: 60*dpr, color: '#fff' },
+        { type: 'cabinet', x: 200*dpr, y: 320*dpr, w: 80*dpr, h: 80*dpr, color: '#a1887f' }
       ] },
     { key: 'diningRoom', side: 'right', row: 3, bg: '#fff8fa', locked: true,
       npc: null,
       furniture: [
-        { type: 'fridge', x: 220*dpr, y: 130*dpr, w: 60*dpr, h: 120*dpr, color: '#e3f2fd' },
-        { type: 'cabinet', x: 30*dpr, y: 40*dpr, w: 240*dpr, h: 60*dpr, color: '#a1887f' }
+        { type: 'cabinet', x: 30*dpr, y: 40*dpr, w: 250*dpr, h: 60*dpr, color: '#a1887f' },
+        { type: 'fridge', x: 210*dpr, y: 130*dpr, w: 60*dpr, h: 120*dpr, color: '#e3f2fd' }
       ] }
   ];
 
@@ -157,7 +160,8 @@ function buildWorld() {
     // NPCs (single or multiple)
     const roomNpcs = def.npcs || (def.npc ? [def.npc] : []);
     roomNpcs.forEach((npc, i) => {
-      const baseX = def.side === 'left' ? ROOM_W * 0.38 : ROOM_W * 0.62;
+      // Keep NPCs on the open side of the room (opposite the wall with furniture)
+      const baseX = ROOM_W * 0.38;
       const offsetX = (i % 2 === 0 ? -20 : 20) * dpr;
       const offsetY = (i >= 2 ? 40 : (i === 1 ? 35 : 0)) * dpr;
       npcs.push({ ...npc, x: rx + baseX + offsetX, y: ry + ROOM_H * 0.62 + offsetY });
