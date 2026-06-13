@@ -11,7 +11,7 @@ const musicToggle = document.getElementById('musicToggle');
 
 function startBackgroundMusic() {
   if (musicStarted || !music || window.birthdaySongPlaying) return;
-  music.volume = 0.35;
+  music.volume = 0.9;
   music.play().then(() => {
     musicStarted = true;
     sessionStorage.setItem('musicPlaying', 'true');
@@ -59,10 +59,18 @@ function enableAutoMusic() {
 
 function initMusicState() {
   window.birthdaySongPlaying = false;
-  if (sessionStorage.getItem('musicPlaying') === 'true' && music) {
-    music.volume = 0.35;
+  if (!music) {
+    updateMusicToggle(false);
+    enableAutoMusic();
+    return;
+  }
+
+  const userPaused = sessionStorage.getItem('musicPlaying') === 'false';
+  if (!userPaused) {
+    music.volume = 0.9;
     music.play().then(() => {
       musicStarted = true;
+      sessionStorage.setItem('musicPlaying', 'true');
       updateMusicToggle(true);
     }).catch(() => updateMusicToggle(false));
   } else {
